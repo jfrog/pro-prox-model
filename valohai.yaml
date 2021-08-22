@@ -1,0 +1,66 @@
+- step:
+    name: load_data
+    image: yotamljfrog/ds-general-image:0.1
+    command:
+      - pip install -r requirements.txt
+      - python -c 'import main; main.load_data('sql_file_name.sql')'
+
+- step:
+    name: dummy_step1
+    image: yotamljfrog/ds-general-image:0.1
+    command:
+      - pip install -r requirements.txt
+      - python -c 'import main; main.dummy_step1()'
+    inputs:
+      - name: loaded_data
+        default: datum://<DATUM_URL_FROM_STEP_EXECUTION>
+
+- step:
+    name: dummy_step2
+    image: yotamljfrog/ds-general-image:0.1
+    command:
+      - pip install -r requirements.txt
+      - python -c 'import main; main.dummy_step2()'
+    inputs:
+      - name: processed_data
+        default: datum://<DATUM_URL_FROM_STEP_EXECUTION>
+
+- step:
+    name: upload_to_s3
+    image: yotamljfrog/ds-general-image:0.1
+    command:
+      - pip install -r requirements.txt
+      - python -c 'import main; main.upload_to_s3()'
+    inputs:
+      - name: data_with_predictions
+        default: datum://<DATUM_URL_FROM_STEP_EXECUTION>
+
+
+- pipeline:
+    name: dummy_pipeline
+    nodes:
+      - name: load_data
+        type: execution
+        step: load_data
+      - name: step1
+        type: execution
+        step: dummy_step1
+        override:
+          inputs:
+            - name: loaded_data
+      - name: step2
+        type: execution
+        step: dummy_step2
+        override:
+          inputs:
+            - name: processed_data
+      - name: upload_to_s3
+        type: execution
+        step: upload_to_s3
+        override:
+          inputs:
+            - name: data_with_predictions
+    edges:
+      - [load_data.output.*.csv, step1.inputs.loaded_data]
+      - [step1.output.*.csv, step2.inputs.processed_data]
+      - [step2.output.*.csv, data_with_predictions.inputs.data_with_predictions]

@@ -1,0 +1,7 @@
+*venv/
+.idea/
+.env
+data
+data/*
+catboost_info/
+__pycache__/
