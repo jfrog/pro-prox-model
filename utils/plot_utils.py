@@ -5,9 +5,9 @@ import numpy as np
 from tqdm import tqdm
 from scipy.stats import ks_2samp
 from sklearn.model_selection import RepeatedStratifiedKFold
-from sklearn.metrics import precision_recall_curve, auc, f1_score, classification_report, confusion_matrix, accuracy_score
+from sklearn.metrics import precision_recall_curve, auc, f1_score, classification_report, confusion_matrix, accuracy_score, average_precision_score
 from scipy import interp
-from yellowbrick.cluster import KElbowVisualizer
+# from yellowbrick.cluster import KElbowVisualizer
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.ensemble import ExtraTreesClassifier
@@ -82,8 +82,8 @@ class Evaluation:
             # plt.savefig(fig_name + '.png', bbox_inches='tight')
             plt.show()
 
-    def plot_cv_precision_recall(self, clf, n_folds, n_repeats, X, y, random_state=0, stacking=False, title=""):
-        sns.set(font_scale=self.font_scale)
+    def plot_cv_precision_recall(self, clf, n_folds, n_repeats, X, y, random_state=0, stacking=False,
+                                 threshold=0.5):
         cv = RepeatedStratifiedKFold(n_splits=n_folds, n_repeats=n_repeats, random_state=random_state)
         f1s = []
         prs = []
@@ -91,6 +91,7 @@ class Evaluation:
         mean_recall = np.linspace(0, 1, 100)
         feature_importance = pd.DataFrame()
         feature_importance['feature'] = X.columns
+
         plt.figure(figsize=(24, 18))
         i = 0
         for train, test in cv.split(X, y):
@@ -108,22 +109,27 @@ class Evaluation:
                     imp[:, ind] = (imp_i - np.min(imp_i)) / (np.max(imp_i) - np.min(imp_i))
                 avg_imp = np.matmul(imp, np.transpose(weights))
                 feature_importance[f'fold_{i + 1}'] = avg_imp
-            y_pred = np.argmax(probas_, axis=1)
+            # y_pred = np.argmax(probas_, axis=1)
+            y_pred = np.where(probas_[:, 1] > threshold, 1, 0)
             # Compute PR curve and area the curve
-            precision, recall, thresholds = precision_recall_curve(y[y.index[test]], probas_[:, 1])
+            # precision, recall, thresholds = precision_recall_curve(y[y.index[test]], probas_[:, 1])
+            precision, recall, thresholds = precision_recall_curve(y[test], probas_[:, 1])
             prs.append(interp(mean_recall, precision, recall))
-            pr_auc = auc(recall, precision)
+            # pr_auc = auc(recall, precision)
+            pr_auc = average_precision_score(y[test], probas_[:, 1])
             aucs.append(pr_auc)
             f1s.append(f1_score(y_pred=y_pred, y_true=y[test]))
             plt.plot(recall, precision, lw=3, alpha=0.5, label='Fold %d (AUCPR = %0.2f)' % (i + 1, pr_auc))
             i += 1
+
         plt.hlines(y=np.mean(y), xmin=0.0, xmax=1.0, linestyle='--', lw=3, color='k', label='Luck', alpha=.8)
         mean_precision = np.mean(prs, axis=0)
-        mean_auc = auc(mean_recall, mean_precision)
+        # mean_auc = auc(mean_recall, mean_precision)
+        mean_auc = np.mean(aucs)
         std_auc = np.std(aucs)
         plt.plot(mean_precision, mean_recall, color='navy',
-                 label=r'Mean (AUCPR = %0.3f $\pm$ %0.2f)' % (mean_auc, std_auc), lw=4)
-        plt.title(title, fontdict ={'family': 'serif', 'color': 'darkred', 'size': 50})
+                 label=r'Mean (AUCPR = %0.3f $\pm$ %0.2f)' % (mean_auc, std_auc),
+                 lw=4)
         plt.xlim([-0.05, 1.05])
         plt.ylim([-0.05, 1.05])
         plt.xlabel('Recall', fontweight="bold", fontsize=30)

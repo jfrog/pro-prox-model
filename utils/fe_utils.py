@@ -7,8 +7,6 @@ from sklearn.metrics import silhouette_score
 from sklearn.cluster import KMeans
 from tqdm import tqdm
 import json
-from verify_email import verify_email
-# import phonenumbers
 import socket
 import re
 from utils.general_utils import get_cat_features, get_cat_feature_names, get_technologies
@@ -497,3 +495,29 @@ def get_sha1_id(summary):
     sha1_obj = hashlib.sha1()
     sha1_obj.update(summary.encode('utf-8'))
     return sha1_obj.hexdigest()
+
+
+def get_growth_features(feature_name, df, return_only_q1_growth=True, normalize_growth=True, monthly=True):
+    feature_cols = [col for col in df.columns if col.startswith(feature_name)][::-1]
+    feature_cols_monthly = [col for col in feature_cols if '.1' not in col and '.2' not in col]
+    feature_cols_quarter = [col for col in feature_cols if '.3' not in col and '.4' not in col]
+    growth_feature_monthly = np.mean((np.diff(df[feature_cols_monthly]) / df[feature_cols_monthly[:2]]).fillna(0).replace(np.inf, 1), axis=1)
+    growth_feature_quarter = np.mean((np.diff(df[feature_cols_quarter]) / df[feature_cols_quarter[:2]]).fillna(0).replace(np.inf, 1), axis=1)
+    if normalize_growth:
+        if monthly:
+            df_fg = pd.DataFrame((np.diff(df[feature_cols_monthly]) / df[feature_cols_monthly[:2]]).fillna(0).replace(np.inf, 1),
+                                 columns=['q2_' + feature_name + '_growth', 'q1_' + feature_name + '_growth'])
+        else:
+            df_fg = pd.DataFrame((np.diff(df[growth_feature_quarter]) / df[growth_feature_quarter[:2]]).fillna(0).replace(np.inf, 1),
+                                 columns=['q2_' + feature_name + '_growth', 'q1_' + feature_name + '_growth'])
+    else:
+        if monthly:
+            df_fg = pd.DataFrame(np.diff(df[feature_cols_monthly]),
+                                 columns=['q2_' + feature_name + '_growth', 'q1_' + feature_name + '_growth'])
+        else:
+            df_fg = pd.DataFrame(np.diff(df[growth_feature_quarter]),
+                                 columns=['q2_' + feature_name + '_growth', 'q1_' + feature_name + '_growth'])
+    df_fg['binary_' + feature_name] = np.where(df_fg['q1_' + feature_name + '_growth'] < df_fg['q2_' + feature_name + '_growth'], 1, 0)
+    if return_only_q1_growth:
+        df_fg = df_fg.drop('q2_' + feature_name + '_growth', axis=1)
+    return growth_feature_monthly, growth_feature_quarter,  df_fg

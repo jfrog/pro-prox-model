@@ -1,0 +1,1 @@
+select * from staging.contract_analysis limit 7

@@ -2,15 +2,49 @@ import pandas as pd
 import numpy as np
 import re
 from sklearn.feature_selection import SelectFromModel
+from boruta import BorutaPy
 
 from utils.fe_utils import fe_leads, add_anomaly_score_feature, get_trial_scoring, get_trial_scoring_clustering, \
     get_trials_model
-from utils.general_utils import load_data, get_technologies
+from utils.general_utils import load_data_old, get_technologies
 
+def Boruta_feature_selection(X_train, y_train, X_test, random_state=0, alpha=0.05):
+    X_train_labeld = X_train[y_train != -1]
+    y_train_labeld = y_train[y_train != -1]
+    X_train_numeric = X_train_labeld.select_dtypes(include=np.number)
+    # define Boruta feature selection method
+    forest = RandomForestClassifier(n_jobs=-1, class_weight='balanced', max_depth=5, random_state=random_state)
+    feat_selector = BorutaPy(forest, n_estimators='auto', verbose=2, random_state=random_state, alpha=alpha)
+
+    # find all relevant features
+    feat_selector.fit(X_train_numeric.values, y_train_labeld)
+    cols_to_drop = [col for ind, col in enumerate(X_train_numeric.columns) if
+                    not ((feat_selector.support_[ind]) | (feat_selector.support_weak_[ind]))]
+    X_train_selected, X_test_selected = X_train.drop(cols_to_drop, axis=1), X_test.drop(cols_to_drop, axis=1)
+    return X_train_selected, X_test_selected
+
+
+def drop_by_correlation(df, threshold=0.9):
+    corr_matrix = df.corr().abs()
+    # Select upper triangle of correlation matrix
+    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
+
+    # Find features with correlation greater than 0.95
+    cols_to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
+    return cols_to_drop
+
+def drop_by_correlation(df, threshold=0.9):
+    corr_matrix = df.corr().abs()
+    # Select upper triangle of correlation matrix
+    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
+
+    # Find features with correlation greater than 0.95
+    cols_to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
+    return cols_to_drop
 
 def preprocess_data(df=pd.DataFrame(), query_name=''):
     if len(df) == 0:
-        df = load_data(query_name)
+        df = load_data_old(query_name)
     #  clean the reason fields
     df.reason = df.apply(lambda row: row.reason
     if re.match("(.*?)(\.)(.*?)( action Change)", str(row.reason).lower()) == None
