@@ -3,14 +3,14 @@
     image: yotamljfrog/csat_model:0.3
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.load_data('fit.sql')'
+      - python -c 'import main; main.load_data("fit.sql")'
 
 - step:
     name: load_data_predict
     image: yotamljfrog/csat_model:0.3
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.load_data('predict.sql')'
+      - python -c 'import main; main.load_data("predict.sql")'
 
 - step:
     name: consolidate_opps
