@@ -6,24 +6,75 @@
       - python -c 'import main; main.load_data('sql_file_name.sql')'
 
 - step:
-    name: dummy_step1
+    name: consolidate_opps
     image: yotamljfrog/ds-general-image:0.1
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.dummy_step1()'
+      - python -c 'import main; main.consolidate_opps()'
     inputs:
       - name: loaded_data
         default: datum://<DATUM_URL_FROM_STEP_EXECUTION>
 
 - step:
-    name: dummy_step2
+    name: process_df
     image: yotamljfrog/ds-general-image:0.1
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.dummy_step2()'
+      - python -c 'import main; main.process_df()'
+    inputs:
+      - name: loaded_data
+        default: datum://<DATUM_URL_FROM_STEP_EXECUTION>
+
+- step:
+    name: fit_rf
+    image: yotamljfrog/csat_model:0.3
+    command:
+      - pip install -r requirements.txt
+      - python -c 'import main; main.fit("rf")'
+    inputs:
+      - name: data_ready_for_fit
+        default: datum://017a7be5-0ba9-dde0-3c54-0bbf587dc52d
+
+- step:
+    name: fit_etc
+    image: yotamljfrog/csat_model:0.3
+    command:
+      - pip install -r requirements.txt
+      - python -c 'import main; main.fit("etc")'
+    inputs:
+      - name: data_ready_for_fit
+        default: datum://017a7be5-0ba9-dde0-3c54-0bbf587dc52d
+
+- step:
+    name: fit_cbc
+    image: yotamljfrog/csat_model:0.3
+    command:
+      - pip install -r requirements.txt
+      - python -c 'import main; main.fit("cbc")'
     inputs:
       - name: processed_data
-        default: datum://<DATUM_URL_FROM_STEP_EXECUTION>
+        default: datum://017a7be5-0ba9-dde0-3c54-0bbf587dc52d
+
+- step:
+    name: choose
+    image: yotamljfrog/csat_model:0.3
+    command:
+      - pip install -r requirements.txt
+      - python -c 'import main; main.choose()'
+    inputs:
+      - name: rf
+        default: datum://017a850c-a18c-607d-3091-b46673f3c821
+      - name: etc
+        default: datum://017a850b-3122-7bb6-c4df-b70eb06cda3c
+      - name: cbc
+        default: datum://017a8508-b61f-e9ea-a256-75f7b4caeada
+      - name: rf_pr_auc
+        default: datum://017a850c-a265-a5ba-d667-4c474bd93994
+      - name: etc_pr_auc
+        default: datum://017a850b-31dd-43fe-deed-8fef8c3aac34
+      - name: cbc_pr_auc
+        default: datum://017a8508-b6fb-989b-ac18-edb663f4e1bd
+
 
 - step:
     name: upload_to_s3
