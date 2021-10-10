@@ -30,7 +30,7 @@
       - python -c 'import main; main.process_df()'
     inputs:
       - name: loaded_data
-        default: datum://<DATUM_URL_FROM_STEP_EXECUTION>
+        default: datum://017c691c-c491-1a8d-ae18-474c7c8cb260
 
 - step:
     name: fit_rf
