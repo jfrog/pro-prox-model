@@ -20,7 +20,7 @@
       - python -c 'import main; main.consolidate_opps()'
     inputs:
       - name: loaded_data
-        default: datum://017c69ed-31ca-9475-1fb1-c5df4e1ccd7c
+        default: datum://017c6909-3bed-8508-0960-0c1b94513422
 
 - step:
     name: process_df
@@ -30,7 +30,7 @@
       - python -c 'import main; main.process_df()'
     inputs:
       - name: loaded_data
-        default: datum://017c69fb-ce20-70cb-4c60-7860ce936737
+        default: datum://017c69ed-31ca-9475-1fb1-c5df4e1ccd7c
 
 - step:
     name: fit_rf
