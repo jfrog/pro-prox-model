@@ -18,6 +18,7 @@ from explainerdashboard import ClassifierExplainer, ExplainerDashboard
 import matplotlib.pyplot as plt
 import shap
 from dotenv import load_dotenv
+import glob
 
 load_dotenv()
 
@@ -27,7 +28,8 @@ def load_data(sql_file_name):
 
 
 def consolidate_opps():
-    df = pd.read_csv('/valohai/inputs/loaded_data/loaded_data.csv')
+    path = glob.glob('/valohai/inputs/loaded_data/*.csv')[0]
+    df = pd.read_csv(path)
     has_won = df.groupby('account_id', as_index=False).sum('class').loc[:, ['account_id', 'class']]
     has_won['has_won'] = has_won['class'].apply(lambda x: True if x > 0 else False)
     has_won.drop('class', axis=1, inplace=True)
