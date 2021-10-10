@@ -44,7 +44,11 @@ def consolidate_opps():
 
 def process_df():
     path = glob.glob('/valohai/inputs/loaded_data/*.csv')[0]
-    df = pd.read_csv(path)
+    if 'predict' in path:
+        df = pd.read_csv(path, sep=';')
+    else:
+        df = pd.read_csv(path)
+
     # - remove zero variance features
     # cols_to_drop = [col for col in X_temp.select_dtypes(include=np.number).columns if np.std(X_temp[col]) == 0]
     # X_temp = X_temp.drop(cols_to_drop, axis=1)
