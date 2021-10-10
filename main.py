@@ -146,20 +146,6 @@ def choose():
     print("With pr_auc of: " + str(max_pr_auc))
     filename = 'top_model_predictive_cse.sav'
     pickle.dump(top_model, open('/valohai/outputs/' + filename, 'wb'))
-    with open('/valohai/outputs/' + filename + '.metadata.json', 'w') as outfile:
-        json.dump(metadata, outfile)
-
-
-def dummy_step1():
-    df = pd.read_csv('/valohai/inputs/loaded_data/loaded_data.csv')
-    # Here you do some stuff with your data...
-    df.to_csv('/valohai/outputs/processed_data.csv')
-
-
-def dummy_step2():
-    processed_df = pd.read_csv('/valohai/inputs/processed_data/processed_data.csv')
-    # Here you do some stuff with your data
-    processed_df.to_csv('/valohai/outputs/data_with_predictions.csv')
 
 
 def upload_to_s3():

@@ -20,7 +20,7 @@
       - python -c 'import main; main.consolidate_opps()'
     inputs:
       - name: loaded_data
-        default: datum://017c6909-3bed-8508-0960-0c1b94513422
+        default: datum://017c69ed-31ca-9475-1fb1-c5df4e1ccd7c
 
 - step:
     name: process_df
