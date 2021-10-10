@@ -30,7 +30,7 @@
       - python -c 'import main; main.process_df()'
     inputs:
       - name: loaded_data
-        default: datum://017c691c-c491-1a8d-ae18-474c7c8cb260
+        default: datum://017c69fb-ce20-70cb-4c60-7860ce936737
 
 - step:
     name: fit_rf
