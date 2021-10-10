@@ -40,7 +40,7 @@
       - python -c 'import main; main.fit("rf")'
     inputs:
       - name: data_ready_for_fit
-        default: datum://017a7be5-0ba9-dde0-3c54-0bbf587dc52d
+        default: datum://017c692b-97f1-e890-9eef-7aeaf5e9e393
 
 - step:
     name: fit_etc
@@ -50,7 +50,7 @@
       - python -c 'import main; main.fit("etc")'
     inputs:
       - name: data_ready_for_fit
-        default: datum://017a7be5-0ba9-dde0-3c54-0bbf587dc52d
+        default: datum://017c692b-97f1-e890-9eef-7aeaf5e9e393
 
 - step:
     name: fit_cbc
@@ -60,7 +60,7 @@
       - python -c 'import main; main.fit("cbc")'
     inputs:
       - name: processed_data
-        default: datum://017a7be5-0ba9-dde0-3c54-0bbf587dc52d
+        default: datum://017c692b-97f1-e890-9eef-7aeaf5e9e393
 
 - step:
     name: choose
