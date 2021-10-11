@@ -191,7 +191,7 @@
         step: ready_data_for_bars
         override:
           inputs:
-            - name: loaded_data
+            - name: data_for_bars
       - name: make_bars
         type: execution
         step: make_bars
