@@ -89,7 +89,7 @@
       - pip install -r requirements.txt
       - python -c 'import main; main.ready_data_for_bars()'
     inputs:
-      - name: data_for_bars
+      - name: loaded_data
         default: datum://017c6909-3bed-8508-0960-0c1b94513422
 
 - step:
@@ -113,10 +113,10 @@
         default: datum://017aba21-6c05-82f7-1096-95743c267abc
       - name: high_bar_for_predict
         default: datum://017aba21-697e-f1ce-36df-53bbd558066e
-      - name: data_for_predict
+      - name: loaded_data
         default: datum://017a8050-2eb8-27d1-dee1-9ba7bda9f069
-      - name: model-prod
-        default: datum://model-prod
+      - name: top_model
+        default: datum://017a8050-2eb8-27d1-dee1-9ba7bda9f069
 
 
 - step:

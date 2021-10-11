@@ -231,14 +231,14 @@ def predict():
                          'shap_importance': top_dict[key]}
             final_payload.append(top_dict[key])
 
-    num_of_cases = accounts.shape[0]
+    num_of_accounts = accounts.shape[0]
     num_of_high = accounts['rating'].value_counts()['High']
-    high_percentage = round(((num_of_high / num_of_cases) * 100), 2)
+    high_percentage = round(((num_of_high / num_of_accounts) * 100), 2)
     num_of_medium = accounts['rating'].value_counts()['Medium']
-    medium_percentage = round(((num_of_medium / num_of_cases) * 100), 2)
+    medium_percentage = round(((num_of_medium / num_of_accounts) * 100), 2)
     num_of_low = accounts['rating'].value_counts()['Low']
-    low_percentage = round(((num_of_low / num_of_cases) * 100), 2)
-    message = "Pro ==> Pro-X Model - Out of " + str(num_of_cases) + " cases, " + str(
+    low_percentage = round(((num_of_low / num_of_accounts) * 100), 2)
+    message = "Pro ==> Pro-X Model - Out of " + str(num_of_accounts) + " cases, " + str(
         num_of_high) + " cases were marked as high risk (" + str(high_percentage) + "%), " \
               + str(num_of_medium) + " cases were marked as medium risk (" + str(medium_percentage) + "%), " \
                                                                                                       "and " + str(
