@@ -155,7 +155,7 @@ def choose():
 
 
 def ready_data_for_bars():
-    df_for_bars = pd.read_csv('/valohai/inputs/data_for_bars/fit.csv', sep=';')
+    df_for_bars = pd.read_csv('/valohai/inputs/data_for_bars/processed_data.csv', sep=';')
     cols_to_drop = [col for col in df_for_bars.columns if 'period_range' in col or 'relevant_date' in col or 'account_id' in col
                     or 'class' in col or 'has_won' in col]
     df_for_bars = df_for_bars.drop([col for col in df_for_bars.columns if col in cols_to_drop], axis=1)

@@ -89,7 +89,7 @@
       - pip install -r requirements.txt
       - python -c 'import main; main.ready_data_for_bars()'
     inputs:
-      - name: loaded_data
+      - name: data_for_bars
         default: datum://017c6909-3bed-8508-0960-0c1b94513422
 
 - step:
@@ -209,12 +209,12 @@
             - name: top_model
     edges:
       - [load_data_fit.output.*.csv, consolidate_opps.inputs.loaded_data]
-      - [load_data_fit.output.*.csv, ready_data_for_bars.inputs.loaded_data]
-      - [ready_data_for_bars.output.*.csv, make_bars.inputs.data_ready_for_bars]
       - [consolidate_opps.output.*.csv, process_df_fit.inputs.loaded_data]
       - [process_df_fit.output.*.csv, fit_rf.inputs.processed_data]
       - [process_df_fit.output.*.csv, fit_etc.inputs.processed_data]
       - [process_df_fit.output.*.csv, fit_cbc.inputs.processed_data]
+      - [process_df_fit.output.*.csv, ready_data_for_bars.inputs.data_for_bars]
+      - [ready_data_for_bars.output.*.csv, make_bars.inputs.data_ready_for_bars]
       - [fit_rf.output.*.sav, choose.inputs.rf]
       - [fit_etc.output.*.sav, choose.inputs.etc]
       - [fit_cbc.output.*.sav, choose.inputs.cbc]
