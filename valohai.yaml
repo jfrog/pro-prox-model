@@ -90,7 +90,7 @@
       - python -c 'import main; main.ready_data_for_bars()'
     inputs:
       - name: data_for_bars
-        default: datum://017ab9ba-7671-921b-9d15-c10a4cd24ae8
+        default: datum://017c6909-3bed-8508-0960-0c1b94513422
 
 - step:
     name: make_bars
@@ -100,7 +100,7 @@
       - python -c 'import main; main.make_bars()'
     inputs:
       - name: data_ready_for_bars
-        default: datum://017ab9cb-2cd4-348d-e2a7-a99b93a676dd
+        default: datum://017c6909-3bed-8508-0960-0c1b94513422
 
 - step:
     name: predict
