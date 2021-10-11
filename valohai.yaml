@@ -80,7 +80,7 @@
     image: yotamljfrog/csat_model:0.3
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.import_data("predict.sql")'
+      - python -c 'import main; main.load_data("predict.sql")'
 
 - step:
     name: ready_data_for_bars
