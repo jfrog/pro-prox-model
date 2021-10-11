@@ -19,7 +19,8 @@ import matplotlib.pyplot as plt
 import shap
 from dotenv import load_dotenv
 import glob
-
+import requests
+from datetime import datetime
 load_dotenv()
 
 
@@ -149,8 +150,113 @@ def choose():
     print("Top model is: ")
     print(top_model)
     print("With pr_auc of: " + str(max_pr_auc))
-    filename = 'top_model_predictive_cse.sav'
+    filename = 'top_model.sav'
     pickle.dump(top_model, open('/valohai/outputs/' + filename, 'wb'))
+
+
+def ready_data_for_bars():
+    df_for_bars = pd.read_csv('/valohai/inputs/data_for_bars/fit.csv', sep=';')
+    cols_to_drop = [col for col in df_for_bars.columns if 'period_range' in col or 'relevant_date' in col or 'account_id' in col
+                    or 'class' in col or 'has_won' in col]
+    df_for_bars = df_for_bars.drop([col for col in df_for_bars.columns if col in cols_to_drop], axis=1)
+    class_1 = df_for_bars[df_for_bars['class'] == 1]
+    class_0 = df_for_bars[df_for_bars['class'] == 0]
+    amount_of_1 = class_1.shape[0]
+    amount_of_0 = class_0.shape[0]
+    num_of_samples = int((0.855 / 0.135) * amount_of_1)
+    class_0_sampled = class_0.sample(n=num_of_samples, random_state=0)
+    new_df_proportioned = pd.concat([class_1, class_0_sampled])
+    new_df_proportioned = new_df_proportioned.reset_index()
+    new_df_proportioned = new_df_proportioned.drop('class', axis=1)
+    new_df_proportioned.to_csv('/valohai/outputs/data_ready_for_bars.csv')
+
+
+def make_bars():
+    df_for_bars = pd.read_csv('/valohai/inputs/data_ready_for_bars/data_ready_for_bars.csv')
+    cols = df_for_bars.columns
+    X = df_for_bars.copy().drop([col for col in cols if col in ['class', 'index', 'Unnamed: 0']], axis=1)
+    print(X.columns)
+    print(X.shape)
+    low_bar_for_predict = X.quantile(.3)
+    print(low_bar_for_predict)
+    high_bar_for_predict = X.quantile(.8)
+    print(high_bar_for_predict)
+    low_bar_for_predict.to_csv('/valohai/outputs/low_bar_for_predict.csv')
+    high_bar_for_predict.to_csv('/valohai/outputs/high_bar_for_predict.csv')
+
+
+def predict():
+    accounts = pd.read_csv('/valohai/inputs/loaded_data/predict.csv', sep=';')
+    low_bar_for_predict = pd.read_csv('/valohai/inputs/low_bar_for_predict/low_bar_for_predict.csv', header=None,
+                                      index_col=0, squeeze=True)
+    high_bar_for_predict = pd.read_csv('/valohai/inputs/high_bar_for_predict/high_bar_for_predict.csv', header=None,
+                                       index_col=0, squeeze=True)
+    top_model = pickle.load(open('/valohai/inputs/top_model/top_model.sav', 'rb'))
+
+    print("Top model is: ")
+    print(top_model)
+    cols_to_drop = ['account_id', 'case_id', 'created_date', 'resolved_date', 'status', 'case_id.1']
+    open_cases_clean = accounts.drop([col for col in accounts.columns if col in cols_to_drop], axis=1)
+    explainer = shap.TreeExplainer(top_model)
+    shap_mat = explainer.shap_values(open_cases_clean)
+    print(shap_mat)
+    if len(np.array(shap_mat).shape) == 3:
+        shap_mat = shap_mat[1]
+
+    shap_df = pd.DataFrame(shap_mat, columns=open_cases_clean.columns)
+    accounts['proba'] = top_model.predict_proba(open_cases_clean)[:, 1]
+
+    accounts['rating'] = accounts['proba'].apply(
+        lambda x: 'High' if x >= 0.6 else 'Medium' if x >= 0.35 else 'Low')
+
+    final_payload = []
+    for index, row in shap_df.iterrows():
+        top_4 = row.nlargest(4)
+        top_dict = top_4[top_4.gt(0)].to_dict()
+
+        for key in top_dict:
+            true_val = open_cases_clean.loc[index, key]
+            prob = accounts.loc[index, 'proba']
+            rating = accounts.loc[index, 'rating']
+            case_id = accounts.loc[index, 'case_id']
+            relative_value = 'High' if true_val >= high_bar_for_predict[key] else 'Medium' if true_val >= \
+                                                                                              low_bar_for_predict[
+                                                                                                  key] else 'Low'
+            top_dict[key] = {'case_id': case_id,
+                         'prob': prob,
+                         'rating': rating,
+                         'feature': key,
+                         'feature_value': true_val,
+                         'relative_value': relative_value,
+                         'shap_importance': top_dict[key]}
+            final_payload.append(top_dict[key])
+
+    num_of_cases = accounts.shape[0]
+    num_of_high = accounts['rating'].value_counts()['High']
+    high_percentage = round(((num_of_high / num_of_cases) * 100), 2)
+    num_of_medium = accounts['rating'].value_counts()['Medium']
+    medium_percentage = round(((num_of_medium / num_of_cases) * 100), 2)
+    num_of_low = accounts['rating'].value_counts()['Low']
+    low_percentage = round(((num_of_low / num_of_cases) * 100), 2)
+    message = "Pro ==> Pro-X Model - Out of " + str(num_of_cases) + " cases, " + str(
+        num_of_high) + " cases were marked as high risk (" + str(high_percentage) + "%), " \
+              + str(num_of_medium) + " cases were marked as medium risk (" + str(medium_percentage) + "%), " \
+                                                                                                      "and " + str(
+        num_of_low) + " cases were marked as low risk (" + str(low_percentage) + "%)."
+
+    print(message)
+    now_str = str(datetime.today())
+    dict_for_post = {'Message': message,
+                     'Created_Date': now_str}
+    try:
+        requests.post(url="https://www.workato.com/webhooks/rest/90076a68-0ba3-4091-aa8d-9da27893cfd6/test",
+                      data=json.dumps(dict_for_post))
+        print("Successfully sent update to the data-science slack channel.")
+    except:
+        print("Failed to sent message to data-science slack channel. please check the Workato recipe related to this.")
+
+    final_prediction = pd.DataFrame(final_payload)
+    final_prediction.to_csv('/valohai/outputs/final_prediction.csv')
 
 
 def upload_to_s3():

@@ -6,13 +6,6 @@
       - python -c 'import main; main.load_data("fit.sql")'
 
 - step:
-    name: load_data_predict
-    image: yotamljfrog/csat_model:0.3
-    command:
-      - pip install -r requirements.txt
-      - python -c 'import main; main.load_data("predict.sql")'
-
-- step:
     name: consolidate_opps
     image: yotamljfrog/csat_model:0.3
     command:
@@ -82,6 +75,49 @@
       - name: cbc_pr_auc
         default: datum://017c69b4-1bfd-b98a-9298-2e59da6c8129
 
+- step:
+    name: load_data_predict
+    image: yotamljfrog/csat_model:0.3
+    command:
+      - pip install -r requirements.txt
+      - python -c 'import main; main.import_data("predict.sql")'
+
+- step:
+    name: ready_data_for_bars
+    image: yotamljfrog/csat_model:0.3
+    command:
+      - pip install -r requirements.txt
+      - python -c 'import main; main.ready_data_for_bars()'
+    inputs:
+      - name: data_for_bars
+        default: datum://017ab9ba-7671-921b-9d15-c10a4cd24ae8
+
+- step:
+    name: make_bars
+    image: yotamljfrog/csat_model:0.3
+    command:
+      - pip install -r requirements.txt
+      - python -c 'import main; main.make_bars()'
+    inputs:
+      - name: data_ready_for_bars
+        default: datum://017ab9cb-2cd4-348d-e2a7-a99b93a676dd
+
+- step:
+    name: predict
+    image: yotamljfrog/csat_model:0.3
+    command:
+      - pip install -r requirements.txt
+      - python -c 'import main; main.predict()'
+    inputs:
+      - name: low_bar_for_predict
+        default: datum://017aba21-6c05-82f7-1096-95743c267abc
+      - name: high_bar_for_predict
+        default: datum://017aba21-697e-f1ce-36df-53bbd558066e
+      - name: data_for_predict
+        default: datum://017a8050-2eb8-27d1-dee1-9ba7bda9f069
+      - name: model-prod
+        default: datum://model-prod
+
 
 - step:
     name: upload_to_s3
@@ -95,30 +131,97 @@
 
 
 - pipeline:
-    name: dummy_pipeline
+    name: fit_and_predict
     nodes:
-      - name: load_data
+      - name: load_data_fit
         type: execution
-        step: load_data
-      - name: step1
+        step: load_data_fit
+      - name: load_data_predict
         type: execution
-        step: dummy_step1
+        step: load_data_predict
+      - name: consolidate_opps
+        type: execution
+        step: consolidate_opps
         override:
           inputs:
             - name: loaded_data
-      - name: step2
+      - name: process_df_fit
         type: execution
-        step: dummy_step2
+        step: process_df
+        override:
+          inputs:
+            - name: loaded_data
+      - name: process_df_predict
+        type: execution
+        step: process_df
+        override:
+          inputs:
+            - name: loaded_data
+      - name: fit_rf
+        type: execution
+        step: fit_rf
         override:
           inputs:
             - name: processed_data
-      - name: upload_to_s3
+      - name: fit_etc
         type: execution
-        step: upload_to_s3
+        step: fit_etc
         override:
           inputs:
-            - name: data_with_predictions
+            - name: processed_data
+      - name: fit_cbc
+        type: execution
+        step: fit_cbc
+        override:
+          inputs:
+            - name: processed_data
+      - name: choose
+        type: execution
+        step: choose
+        override:
+          inputs:
+            - name: rf
+            - name: rf_pr_auc
+            - name: etc
+            - name: etc_pr_auc
+            - name: cbc
+            - name: cbc_pr_auc
+      - name: ready_data_for_bars
+        type: execution
+        step: ready_data_for_bars
+        override:
+          inputs:
+            - name: loaded_data
+      - name: make_bars
+        type: execution
+        step: make_bars
+        override:
+          inputs:
+            - name: data_ready_for_bars
+      - name: predict
+        type: execution
+        step: predict
+        override:
+          inputs:
+            - name: loaded_data
+            - name: low_bar_for_predict
+            - name: high_bar_for_predict
+            - name: top_model
     edges:
-      - [load_data.output.*.csv, step1.inputs.loaded_data]
-      - [step1.output.*.csv, step2.inputs.processed_data]
-      - [step2.output.*.csv, data_with_predictions.inputs.data_with_predictions]
+      - [load_data_fit.output.*.csv, consolidate_opps.inputs.loaded_data]
+      - [load_data_fit.output.*.csv, ready_data_for_bars.inputs.loaded_data]
+      - [ready_data_for_bars.output.*.csv, make_bars.inputs.data_ready_for_bars]
+      - [consolidate_opps.output.*.csv, process_df.inputs.loaded_data]
+      - [process_df_fit.output.*.csv, fit_rf.inputs.processed_data]
+      - [process_df_fit.output.*.csv, fit_etc.inputs.processed_data]
+      - [process_df_fit.output.*.csv, fit_cbc.inputs.processed_data]
+      - [fit_rf.output.*.sav, choose.inputs.rf]
+      - [fit_etc.output.*.sav, choose.inputs.etc]
+      - [fit_cbc.output.*.sav, choose.inputs.cbc]
+      - [fit_rf.output.*.json, choose.inputs.rf_pr_auc]
+      - [fit_etc.output.*.json, choose.inputs.etc_pr_auc]
+      - [fit_cbc.output.*.json, choose.inputs.cbc_pr_auc]
+      - [choose.output.*.sav, predict.inputs.top_model]
+      - [make_bars.output.low_bar_for_predict.csv, predict.inputs.low_bar_for_predict]
+      - [make_bars.output.high_bar_for_predict.csv, predict.inputs.high_bar_for_predict]
+      - [load_data_predict.output.*.csv, predict.inputs.loaded_data]
