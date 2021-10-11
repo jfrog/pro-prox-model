@@ -1,7 +1,7 @@
 import json
 import os
 import pickle
-import boto
+# import boto
 import pandas as pd
 from catboost import CatBoostClassifier
 import numpy as np
