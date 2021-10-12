@@ -174,7 +174,7 @@ def make_bars():
     cols = df_for_bars.columns
     X = df_for_bars.copy().drop([col for col in cols if 'class' in col or 'index' in col
                                  or 'Unnamed: 0' in col or 'account_id' in col or 'has_won' in col
-                                 or 'relevant_date' in col or 'period_range'], axis=1)
+                                 or 'relevant_date' in col or 'period_range' in col], axis=1)
     print(X.columns)
     print(X.shape)
     low_bar_for_predict = X.quantile(.3)
