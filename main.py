@@ -170,7 +170,7 @@ def ready_data_for_bars():
 
 
 def make_bars():
-    df_for_bars = pd.read_csv('/valohai/inputs/data_ready_for_bars/processed_data.csv')
+    df_for_bars = pd.read_csv('/valohai/inputs/processed_data/processed_data.csv')
     cols = df_for_bars.columns
     X = df_for_bars.copy().drop([col for col in cols if 'class' in col or 'index' in col
                                  or 'Unnamed: 0' in col or 'account_id' in col or 'has_won' in col
