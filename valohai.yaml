@@ -186,12 +186,6 @@
             - name: etc_pr_auc
             - name: cbc
             - name: cbc_pr_auc
-      - name: ready_data_for_bars
-        type: execution
-        step: ready_data_for_bars
-        override:
-          inputs:
-            - name: data_for_bars
       - name: make_bars
         type: execution
         step: make_bars
