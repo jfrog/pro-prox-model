@@ -170,9 +170,11 @@ def ready_data_for_bars():
 
 
 def make_bars():
-    df_for_bars = pd.read_csv('/valohai/inputs/data_ready_for_bars/data_ready_for_bars.csv')
+    df_for_bars = pd.read_csv('/valohai/inputs/data_ready_for_bars/processed_data.csv')
     cols = df_for_bars.columns
-    X = df_for_bars.copy().drop([col for col in cols if col in ['class', 'index', 'Unnamed: 0']], axis=1)
+    X = df_for_bars.copy().drop([col for col in cols if 'class' in col or 'index' in col
+                                 or 'Unnamed: 0' in col or 'account_id' in col or 'has_won' in col
+                                 or 'relevant_date' in col or 'period_range'], axis=1)
     print(X.columns)
     print(X.shape)
     low_bar_for_predict = X.quantile(.3)

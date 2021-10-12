@@ -99,7 +99,7 @@
       - pip install -r requirements.txt
       - python -c 'import main; main.make_bars()'
     inputs:
-      - name: data_ready_for_bars
+      - name: processed_data
         default: datum://017c6909-3bed-8508-0960-0c1b94513422
 
 - step:
@@ -197,7 +197,7 @@
         step: make_bars
         override:
           inputs:
-            - name: data_ready_for_bars
+            - name: processed_data
       - name: predict
         type: execution
         step: predict
@@ -213,8 +213,8 @@
       - [process_df_fit.output.*.csv, fit_rf.inputs.processed_data]
       - [process_df_fit.output.*.csv, fit_etc.inputs.processed_data]
       - [process_df_fit.output.*.csv, fit_cbc.inputs.processed_data]
-      - [process_df_fit.output.*.csv, ready_data_for_bars.inputs.data_for_bars]
-      - [ready_data_for_bars.output.*.csv, make_bars.inputs.data_ready_for_bars]
+#      - [process_df_fit.output.*.csv, ready_data_for_bars.inputs.data_for_bars]
+      - [process_df_fit.output.*.csv, make_bars.inputs.data_ready_for_bars]
       - [fit_rf.output.*.sav, choose.inputs.rf]
       - [fit_etc.output.*.sav, choose.inputs.etc]
       - [fit_cbc.output.*.sav, choose.inputs.cbc]
