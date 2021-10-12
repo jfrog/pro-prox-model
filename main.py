@@ -186,7 +186,7 @@ def make_bars():
 
 
 def predict():
-    accounts = pd.read_csv('/valohai/inputs/loaded_data/predict.csv', sep=';')
+    accounts = pd.read_csv('/valohai/inputs/loaded_data/processed_df.csv', sep=';')
     low_bar_for_predict = pd.read_csv('/valohai/inputs/low_bar_for_predict/low_bar_for_predict.csv', header=None,
                                       index_col=0, squeeze=True)
     high_bar_for_predict = pd.read_csv('/valohai/inputs/high_bar_for_predict/high_bar_for_predict.csv', header=None,
