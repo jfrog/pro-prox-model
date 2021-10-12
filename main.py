@@ -14,8 +14,6 @@ from utils.general_utils import load_data_old, load_data_valohai, get_cat_featur
 from utils.model_extensions_utils import FocalLossObjective
 from utils.plot_utils import Evaluation
 from utils.fe_utils import get_growth_features
-from explainerdashboard import ClassifierExplainer, ExplainerDashboard
-import matplotlib.pyplot as plt
 import shap
 from dotenv import load_dotenv
 import glob
