@@ -203,7 +203,7 @@ def predict():
     accounts_clean = accounts.drop(cols_to_drop, axis=1).fillna(-1)
     explainer = shap.TreeExplainer(top_model)
     shap_mat = explainer.shap_values(accounts_clean)
-    print(shap_mat)
+    # print(shap_mat)
     if len(np.array(shap_mat).shape) == 3:
         shap_mat = shap_mat[1]
 
@@ -222,11 +222,11 @@ def predict():
             true_val = accounts_clean.loc[index, key]
             prob = accounts.loc[index, 'proba']
             rating = accounts.loc[index, 'rating']
-            case_id = accounts.loc[index, 'case_id']
+            account_id = accounts.loc[index, 'account_id']
             relative_value = 'High' if true_val >= high_bar_for_predict[key] else 'Medium' if true_val >= \
                                                                                               low_bar_for_predict[
                                                                                                   key] else 'Low'
-            top_dict[key] = {'case_id': case_id,
+            top_dict[key] = {'account_id': account_id,
                          'prob': prob,
                          'rating': rating,
                          'feature': key,
