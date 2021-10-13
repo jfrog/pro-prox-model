@@ -1,13 +1,13 @@
 - step:
     name: load_data_fit
-    image: yotamljfrog/csat_model:0.3
+    image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
       - python -c 'import main; main.load_data("fit.sql")'
 
 - step:
     name: consolidate_opps
-    image: yotamljfrog/csat_model:0.3
+    image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
       - python -c 'import main; main.consolidate_opps()'
@@ -17,7 +17,7 @@
 
 - step:
     name: process_df
-    image: yotamljfrog/csat_model:0.3
+    image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
       - python -c 'import main; main.process_df()'
@@ -27,7 +27,7 @@
 
 - step:
     name: fit_rf
-    image: yotamljfrog/csat_model:0.3
+    image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
       - python -c 'import main; main.fit("rf")'
@@ -37,7 +37,7 @@
 
 - step:
     name: fit_etc
-    image: yotamljfrog/csat_model:0.3
+    image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
       - python -c 'import main; main.fit("etc")'
@@ -47,7 +47,7 @@
 
 - step:
     name: fit_cbc
-    image: yotamljfrog/csat_model:0.3
+    image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
       - python -c 'import main; main.fit("cbc")'
@@ -57,7 +57,7 @@
 
 - step:
     name: fit_hist
-    image: yotamljfrog/csat_model:0.3
+    image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
       - python -c 'import main; main.fit("hist")'
@@ -67,7 +67,7 @@
 
 - step:
     name: choose
-    image: yotamljfrog/csat_model:0.3
+    image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
       - python -c 'import main; main.choose()'
@@ -91,14 +91,14 @@
 
 - step:
     name: load_data_predict
-    image: yotamljfrog/csat_model:0.3
+    image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
       - python -c 'import main; main.load_data("predict.sql")'
 
 - step:
     name: ready_data_for_bars
-    image: yotamljfrog/csat_model:0.3
+    image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
       - python -c 'import main; main.ready_data_for_bars()'
@@ -108,7 +108,7 @@
 
 - step:
     name: make_bars
-    image: yotamljfrog/csat_model:0.3
+    image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
       - python -c 'import main; main.make_bars()'
@@ -118,7 +118,7 @@
 
 - step:
     name: predict
-    image: yotamljfrog/csat_model:0.3
+    image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
       - python -c 'import main; main.predict()'
@@ -135,7 +135,7 @@
 
 - step:
     name: upload_to_s3
-    image: yotamljfrog/csat_model:0.3
+    image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
       - python -c 'import main; main.upload_to_s3()'
