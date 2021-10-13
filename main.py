@@ -95,6 +95,9 @@ def fit(model: str):
     cols_to_drop = [col for col in new_df_proportioned.columns if 'period_range' in col or 'relevant_date' in col or 'account_id' in col
                     or 'class' in col or 'has_won' in col]
     X, y = new_df_proportioned.drop(cols_to_drop, axis=1).fillna(-1), new_df_proportioned['class']
+    print(len(X.columns))
+    for col in X.columns:
+        print(col)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=1)
     clf = None
     if model == 'rf':
