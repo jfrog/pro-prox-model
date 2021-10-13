@@ -198,16 +198,17 @@ def predict():
 
     print("Top model is: ")
     print(top_model)
-    cols_to_drop = ['account_id', 'case_id', 'created_date', 'resolved_date', 'status', 'case_id.1']
-    open_cases_clean = accounts.drop([col for col in accounts.columns if col in cols_to_drop], axis=1)
+    cols_to_drop = [col for col in accounts.columns if 'period_range' in col or 'relevant_date' in col or 'account_id' in col
+                    or 'class' in col or 'has_won' in col]
+    accounts_clean = accounts.drop(cols_to_drop, axis=1).fillna(-1)
     explainer = shap.TreeExplainer(top_model)
-    shap_mat = explainer.shap_values(open_cases_clean)
+    shap_mat = explainer.shap_values(accounts_clean)
     print(shap_mat)
     if len(np.array(shap_mat).shape) == 3:
         shap_mat = shap_mat[1]
 
-    shap_df = pd.DataFrame(shap_mat, columns=open_cases_clean.columns)
-    accounts['proba'] = top_model.predict_proba(open_cases_clean)[:, 1]
+    shap_df = pd.DataFrame(shap_mat, columns=accounts_clean.columns)
+    accounts['proba'] = top_model.predict_proba(accounts_clean)[:, 1]
 
     accounts['rating'] = accounts['proba'].apply(
         lambda x: 'High' if x >= 0.6 else 'Medium' if x >= 0.35 else 'Low')
@@ -218,7 +219,7 @@ def predict():
         top_dict = top_4[top_4.gt(0)].to_dict()
 
         for key in top_dict:
-            true_val = open_cases_clean.loc[index, key]
+            true_val = accounts_clean.loc[index, key]
             prob = accounts.loc[index, 'proba']
             rating = accounts.loc[index, 'rating']
             case_id = accounts.loc[index, 'case_id']
