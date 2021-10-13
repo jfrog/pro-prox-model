@@ -56,6 +56,16 @@
         default: datum://017c692b-97f1-e890-9eef-7aeaf5e9e393
 
 - step:
+    name: fit_hist
+    image: yotamljfrog/csat_model:0.3
+    command:
+      - pip install -r requirements.txt
+      - python -c 'import main; main.fit("hist")'
+    inputs:
+      - name: processed_data
+        default: datum://017c692b-97f1-e890-9eef-7aeaf5e9e393
+
+- step:
     name: choose
     image: yotamljfrog/csat_model:0.3
     command:
@@ -68,11 +78,15 @@
         default: datum://017c69b5-9db9-6522-c559-cbb83ac85829
       - name: cbc
         default: datum://017c69b4-1b15-5577-e3c4-e1731c52f8d8
+      - name: hist
+        default: datum://017c69b4-1b15-5577-e3c4-e1731c52f8d8
       - name: rf_pr_auc
         default: datum://017c69cc-3485-05b7-47cb-a40a44378343
       - name: etc_pr_auc
         default: datum://017c69b5-9e86-10cb-7123-b562e7598c00
       - name: cbc_pr_auc
+        default: datum://017c69b4-1bfd-b98a-9298-2e59da6c8129
+      - name: hist_pr_auc
         default: datum://017c69b4-1bfd-b98a-9298-2e59da6c8129
 
 - step:
@@ -175,6 +189,12 @@
         override:
           inputs:
             - name: processed_data
+      - name: fit_hist
+        type: execution
+        step: fit_hist
+        override:
+          inputs:
+            - name: processed_data
       - name: choose
         type: execution
         step: choose
@@ -186,6 +206,8 @@
             - name: etc_pr_auc
             - name: cbc
             - name: cbc_pr_auc
+            - name: hist
+            - name: hist_pr_auc
       - name: make_bars
         type: execution
         step: make_bars

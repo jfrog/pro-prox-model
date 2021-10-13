@@ -6,7 +6,8 @@ import pandas as pd
 from catboost import CatBoostClassifier
 import numpy as np
 from lightgbm import LGBMClassifier
-from sklearn.ensemble import StackingClassifier, ExtraTreesClassifier, RandomForestClassifier
+from sklearn.ensemble import StackingClassifier, ExtraTreesClassifier, RandomForestClassifier, \
+    HistGradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_curve, auc
 from sklearn.model_selection import train_test_split
@@ -19,6 +20,7 @@ from dotenv import load_dotenv
 import glob
 import requests
 from datetime import datetime
+
 load_dotenv()
 
 
@@ -92,7 +94,8 @@ def process_df():
 
 def fit(model: str):
     new_df_proportioned = pd.read_csv('/valohai/inputs/processed_data/processed_data.csv')
-    cols_to_drop = [col for col in new_df_proportioned.columns if 'period_range' in col or 'relevant_date' in col or 'account_id' in col
+    cols_to_drop = [col for col in new_df_proportioned.columns if
+                    'period_range' in col or 'relevant_date' in col or 'account_id' in col
                     or 'class' in col or 'has_won' in col]
     X, y = new_df_proportioned.drop(cols_to_drop, axis=1).fillna(-1), new_df_proportioned['class']
     print(len(X.columns))
@@ -110,6 +113,9 @@ def fit(model: str):
     elif model == 'cbc':
         clf = CatBoostClassifier(cat_features=get_cat_feature_names(X), auto_class_weights="Balanced", random_state=5,
                                  bootstrap_type='Bayesian', rsm=0.1, verbose=0)
+    elif model == 'hist':
+        hist = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
+                                              random_state=5, loss="auto", scoring="Logloss")
     clf.fit(X_train, y_train)
     probas = clf.predict_proba(X_test)
     precision, recall, thresholds = precision_recall_curve(y_test, probas[:, 1])
@@ -138,6 +144,10 @@ def choose():
     f = open('/valohai/inputs/cbc_pr_auc/cbc_pr_auc.json', "r")
     cbc_pr_auc = json.loads(f.read())['pr_auc']
 
+    hist = pickle.load(open('/valohai/inputs/hist/hist.sav', 'rb'))
+    f = open('/valohai/inputs/hist_pr_auc/hist_pr_auc.json', "r")
+    hist_pr_auc = json.loads(f.read())['pr_auc']
+
     if rf_pr_auc >= max_pr_auc:
         top_model = rf
         max_pr_auc = rf_pr_auc
@@ -147,6 +157,9 @@ def choose():
     if cbc_pr_auc >= max_pr_auc:
         top_model = cbc
         max_pr_auc = cbc_pr_auc
+    if hist_pr_auc >= max_pr_auc:
+        top_model = hist
+        max_pr_auc = hist_pr_auc
 
     print("Top model is: ")
     print(top_model)
@@ -157,7 +170,8 @@ def choose():
 
 def ready_data_for_bars():
     df_for_bars = pd.read_csv('/valohai/inputs/data_for_bars/processed_data.csv', sep=';')
-    cols_to_drop = [col for col in df_for_bars.columns if 'period_range' in col or 'relevant_date' in col or 'account_id' in col
+    cols_to_drop = [col for col in df_for_bars.columns if
+                    'period_range' in col or 'relevant_date' in col or 'account_id' in col
                     or 'class' in col or 'has_won' in col]
     df_for_bars = df_for_bars.drop([col for col in df_for_bars.columns if col in cols_to_drop], axis=1)
     class_1 = df_for_bars[df_for_bars['class'] == 1]
@@ -198,7 +212,8 @@ def predict():
 
     print("Top model is: ")
     print(top_model)
-    cols_to_drop = [col for col in accounts.columns if 'period_range' in col or 'relevant_date' in col or 'account_id' in col
+    cols_to_drop = [col for col in accounts.columns if
+                    'period_range' in col or 'relevant_date' in col or 'account_id' in col
                     or 'class' in col or 'has_won' in col]
     accounts_clean = accounts.drop(cols_to_drop, axis=1).fillna(-1)
     explainer = shap.TreeExplainer(top_model)
@@ -215,25 +230,29 @@ def predict():
 
     final_payload = []
     for index, row in shap_df.iterrows():
-        top_4 = row.nlargest(4)
-        top_dict = top_4[top_4.gt(0)].to_dict()
+        top_10 = row.nlargest(10)
+        top_dict = top_10[top_10.gt(0)].to_dict()
+        bottom_10 = row.nsmallest(10)
+        bottom_dict = bottom_10[bottom_10.lt(0)].to_dict()
+        dicts = [top_dict, bottom_dict]
 
-        for key in top_dict:
-            true_val = accounts_clean.loc[index, key]
-            prob = accounts.loc[index, 'proba']
-            rating = accounts.loc[index, 'rating']
-            account_id = accounts.loc[index, 'account_id']
-            relative_value = 'High' if true_val >= high_bar_for_predict[key] else 'Medium' if true_val >= \
-                                                                                              low_bar_for_predict[
-                                                                                                  key] else 'Low'
-            top_dict[key] = {'account_id': account_id,
-                         'prob': prob,
-                         'rating': rating,
-                         'feature': key,
-                         'feature_value': true_val,
-                         'relative_value': relative_value,
-                         'shap_importance': top_dict[key]}
-            final_payload.append(top_dict[key])
+        for dict in dicts:
+            for key in dict:
+                true_val = accounts_clean.loc[index, key]
+                prob = accounts.loc[index, 'proba']
+                rating = accounts.loc[index, 'rating']
+                account_id = accounts.loc[index, 'account_id']
+                relative_value = 'High' if true_val >= high_bar_for_predict[key] else 'Medium' if true_val >= \
+                                                                                                  low_bar_for_predict[
+                                                                                                      key] else 'Low'
+                dict[key] = {'account_id': account_id,
+                             'prob': prob,
+                             'rating': rating,
+                             'feature': key,
+                             'feature_value': true_val,
+                             'relative_value': relative_value,
+                             'shap_importance': dict[key]}
+                final_payload.append(dict[key])
 
     num_of_accounts = accounts.shape[0]
     num_of_high = accounts['rating'].value_counts()['High']
@@ -242,11 +261,12 @@ def predict():
     medium_percentage = round(((num_of_medium / num_of_accounts) * 100), 2)
     num_of_low = accounts['rating'].value_counts()['Low']
     low_percentage = round(((num_of_low / num_of_accounts) * 100), 2)
-    message = "Pro ==> Pro-X Model - Out of " + str(num_of_accounts) + " cases, " + str(
-        num_of_high) + " cases were marked as high risk (" + str(high_percentage) + "%), " \
-              + str(num_of_medium) + " cases were marked as medium risk (" + str(medium_percentage) + "%), " \
-                                                                                                      "and " + str(
-        num_of_low) + " cases were marked as low risk (" + str(low_percentage) + "%)."
+    message = "Pro ==> Pro-X Model - Out of " + str(num_of_accounts) + " accounts, " + str(
+        num_of_high) + " accounts were marked as high chance of upgrading (" + str(high_percentage) + "%), " \
+              + str(num_of_medium) + " accounts were marked as medium chance of upgrading (" + str(
+        medium_percentage) + "%), " \
+                             "and " + str(
+        num_of_low) + " accounts were marked as low chance of upgrading (" + str(low_percentage) + "%)."
 
     print(message)
     now_str = str(datetime.today())
