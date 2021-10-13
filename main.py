@@ -98,15 +98,15 @@ def fit(model: str):
     print(len(X.columns))
     for col in X.columns:
         print(col)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=2)
     clf = None
     if model == 'rf':
         clf = RandomForestClassifier(criterion='entropy', n_estimators=2000, min_samples_split=50,
                                      min_samples_leaf=20, max_features='sqrt', bootstrap=False,
-                                     oob_score=False, random_state=44, class_weight='balanced')
+                                     oob_score=False, random_state=2, class_weight='balanced')
     elif model == 'etc':
         clf = ExtraTreesClassifier(n_estimators=2000, min_samples_split=50, min_samples_leaf=20,
-                                   class_weight='balanced', max_features='sqrt', random_state=44)
+                                   class_weight='balanced', max_features='sqrt', random_state=2)
     elif model == 'cbc':
         clf = CatBoostClassifier(cat_features=get_cat_feature_names(X), auto_class_weights="Balanced", random_state=5,
                                  bootstrap_type='Bayesian', rsm=0.1, verbose=0)
