@@ -229,6 +229,7 @@
       - [process_df_fit.output.*.csv, fit_rf.inputs.processed_data]
       - [process_df_fit.output.*.csv, fit_etc.inputs.processed_data]
       - [process_df_fit.output.*.csv, fit_cbc.inputs.processed_data]
+      - [process_df_fit.output.*.csv, fit_hist.inputs.processed_data]
 #      - [process_df_fit.output.*.csv, ready_data_for_bars.inputs.data_for_bars]
       - [process_df_fit.output.*.csv, make_bars.inputs.processed_data]
       - [fit_rf.output.*.sav, choose.inputs.rf]
