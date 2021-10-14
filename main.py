@@ -105,7 +105,7 @@ def fit(model: str):
     clf = None
     if model == 'rf':
         clf = RandomForestClassifier(criterion='entropy', n_estimators=2000, min_samples_split=5,
-                                     min_samples_leaf=2, max_features=60, bootstrap=True,
+                                     min_samples_leaf=2, max_features='sqrt', bootstrap=True,
                                      oob_score=True, random_state=2, class_weight='balanced')
     elif model == 'etc':
         clf = ExtraTreesClassifier(n_estimators=2000, min_samples_split=50, min_samples_leaf=20,
