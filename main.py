@@ -114,7 +114,7 @@ def fit(model: str):
         clf = CatBoostClassifier(cat_features=get_cat_feature_names(X), auto_class_weights="Balanced", random_state=5,
                                  bootstrap_type='Bayesian', rsm=0.1, verbose=0)
     elif model == 'hist':
-        hist = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
+        clf = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
                                               random_state=5, loss="auto", scoring="Logloss")
     clf.fit(X_train, y_train)
     probas = clf.predict_proba(X_test)
