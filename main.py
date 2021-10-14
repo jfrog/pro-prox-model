@@ -104,9 +104,9 @@ def fit(model: str):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=2)
     clf = None
     if model == 'rf':
-        clf = RandomForestClassifier(criterion='entropy', n_estimators=2000, min_samples_split=50,
-                                     min_samples_leaf=20, max_features='sqrt', bootstrap=False,
-                                     oob_score=False, random_state=2, class_weight='balanced')
+        clf = RandomForestClassifier(criterion='entropy', n_estimators=2000, min_samples_split=5,
+                                     min_samples_leaf=2, max_features=60, bootstrap=True,
+                                     oob_score=True, random_state=2, class_weight='balanced')
     elif model == 'etc':
         clf = ExtraTreesClassifier(n_estimators=2000, min_samples_split=50, min_samples_leaf=20,
                                    class_weight='balanced', max_features='sqrt', random_state=2)
