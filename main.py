@@ -24,6 +24,81 @@ from datetime import datetime
 load_dotenv()
 
 
+def translate_feature(feature: str):
+    mapping = {'artifacts_size': 'Storage: artifacts size',
+               'artifacts_count': 'Storage: artifacts count',
+               'binaries_size': 'Storage: binaries size',
+               'binaries_count': 'Storage: binaries count',
+               'items_count': 'Storage: items count',
+               'number_of_permissions': 'Number of permissions',
+               'internal_groups': 'Number of internal groups',
+               'number_of_users': 'Number of users',
+               'maven': 'Maven repositories',
+               'generic': 'Generic repositories',
+               'docker': 'Docker repositories',
+               'n_ent_trials': 'Number of Enterprise trials last two years',
+               'n_contacts': 'Number of contacts',
+               'n_active_contracts': 'Number of active contracts',
+               'is_cotermed': 'Is previously co-termed?',
+               'months_from_upgrade': 'Number of months passed since upgrade from Pro to Pro X',
+               'n_sessions_last_year': 'Number of sessions last year',
+               'n_cases_last_year': 'Number of cases last year',
+               'avg_resolution_days': 'Average resolution days for a case',
+               'industry_group': 'Industry',
+               'total_employees_range': 'Number of employees (range)',
+               'company_age': 'Company age (years)',
+               'seniority': 'Seniority in JFrog (months)',
+               'days_from_contact_added': 'Number of days since last contact added',
+               'days_from_artifacts_size_change': 'Number of days since artifacts size changed',
+               'days_from_artifacts_count_change': 'Number of days since artifacts count changed',
+               'days_from_binaries_size_change': 'Number of days since binaries size changed',
+               'days_from_binaries_count_change': 'Number of days since binaries count changed',
+               'days_from_items_count_change': 'Number of days since items count changed',
+               'days_from_permissions_change': 'Number of days since number of permissions changed',
+               'days_from_internal_groups_change': 'Number of days since number of internal groups changed',
+               'days_from_users_change': 'Number of days since number of users changed',
+               'total_security_policies': 'Number of secured policies (Xray)',
+               'days_since_xray_task': 'Number of days since Xray task',
+               'n_sent': 'Number of Emails sent',
+               'days_since_reply': 'Number of days since the account replayed to an Email',
+               'days_since_sent': 'Number of days since an Email sent to the account',
+               'n_repos': 'Number of repositories',
+               'leading_tech': 'Leading technology',
+               'generic_monthly_growth': 'Generic monthly growth',
+               'maven_monthly_growth': 'Generic monthly growth',
+               'docker_monthly_growth': 'Docker monthly growth',
+               'artifacts_count_monthly_growth': 'Artifacts count monthly growth',
+               'artifacts_size_monthly_growth': 'Artifacts size monthly growth',
+               'binaries_count_monthly_growth': 'Binaries count monthly growth',
+               'binaries_size_monthly_growth': 'Binaries size monthly growth',
+               'items_count_monthly_growth': 'Items count monthly growth',
+               'number_of_users_monthly_growth': 'Number of users monthly growth',
+               'n_repos_monthly_growth': 'Number of repositories monthly growth',
+               'number_of_permissions_monthly_growth': 'Number of permissions monthly growth',
+               'internal_groups_monthly_growth': 'Number of internal groups monthly growth',
+               'generic_quarter_growth': 'Generic quarterly growth',
+               'maven_quarter_growth': 'Generic quarterly growth',
+               'docker_quarter_growth': 'Docker quarterly growth',
+               'npm_quarter_growth': 'Npm quarterly growth',
+               'artifacts_count_quarter_growth': 'Artifacts count quarterly growth',
+               'artifacts_size_quarter_growth': 'Artifacts size quarterly growth',
+               'binaries_count_quarter_growth': 'Binaries count quarterly growth',
+               'binaries_size_quarter_growth': 'Binaries size quarterly growth',
+               'items_count_quarter_growth': 'Items count quarterly growth',
+               'number_of_users_quarter_growth': 'Number of users quarterly growth',
+               'n_repos_quarter_growth': 'Number of repositories quarterly growth',
+               'number_of_permissions_quarter_growth': 'Number of permissions quarterly growth',
+               'internal_groups_quarter_growth': 'Number of internal groups quarterly growth',
+               }
+
+    if feature in mapping:
+        translation = mapping[feature]
+    else:
+        translation = feature
+
+    return translation
+
+
 def load_data(sql_file_name):
     load_data_valohai(sql_file_name)
 
@@ -115,7 +190,7 @@ def fit(model: str):
                                  bootstrap_type='Bayesian', rsm=0.1, verbose=0)
     elif model == 'hist':
         clf = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
-                                              random_state=5, loss="auto", scoring="Logloss")
+                                             random_state=5, loss="auto", scoring="Logloss")
     clf.fit(X_train, y_train)
     probas = clf.predict_proba(X_test)
     precision, recall, thresholds = precision_recall_curve(y_test, probas[:, 1])
@@ -224,9 +299,10 @@ def predict():
 
     shap_df = pd.DataFrame(shap_mat, columns=accounts_clean.columns)
     accounts['proba'] = top_model.predict_proba(accounts_clean)[:, 1]
-
+    high_bar_for_proba = accounts['proba'].quantile(.85)
+    low_bar_for_proba = accounts['proba'].quantile(.7)
     accounts['rating'] = accounts['proba'].apply(
-        lambda x: 'High' if x >= 0.6 else 'Medium' if x >= 0.35 else 'Low')
+        lambda x: 'High' if x >= high_bar_for_proba else 'Medium' if x >= low_bar_for_proba else 'Low')
 
     final_payload = []
     for index, row in shap_df.iterrows():
@@ -248,7 +324,7 @@ def predict():
                 dict[key] = {'account_id': account_id,
                              'prob': prob,
                              'rating': rating,
-                             'feature': key,
+                             'feature': translate_feature(key),
                              'feature_value': true_val,
                              'relative_value': relative_value,
                              'shap_importance': dict[key]}
