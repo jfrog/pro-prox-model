@@ -140,8 +140,8 @@
       - pip install -r requirements.txt
       - python -c 'import main; main.upload_to_s3()'
     inputs:
-      - name: data_with_predictions
-        default: datum://<DATUM_URL_FROM_STEP_EXECUTION>
+      - name: final_prediction
+        default: datum://017c7ede-e2bc-6153-99c6-e5184c4172f1
 
 
 - pipeline:
@@ -223,6 +223,12 @@
             - name: low_bar_for_predict
             - name: high_bar_for_predict
             - name: top_model
+      - name: upload_to_s3
+        type: execution
+        step: upload_to_s3
+        override:
+          inputs:
+            - name: final_prediction
     edges:
       - [load_data_fit.output.*.csv, consolidate_opps.inputs.loaded_data]
       - [consolidate_opps.output.*.csv, process_df_fit.inputs.loaded_data]
@@ -245,3 +251,4 @@
       - [make_bars.output.high_bar_for_predict.csv, predict.inputs.high_bar_for_predict]
       - [load_data_predict.output.*.csv, process_df_predict.inputs.loaded_data]
       - [process_df_predict.output.*.csv, predict.inputs.processed_data]
+      - [predict.output.*.csv, upload_to_s3.inputs.final_prediction]

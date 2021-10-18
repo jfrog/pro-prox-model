@@ -1,9 +1,11 @@
 import json
 import os
 import pickle
-# import boto
-import pandas as pd
+import boto
+from boto.s3.connection import S3Connection
+from boto.s3.key import Key
 from catboost import CatBoostClassifier
+import pandas as pd
 import numpy as np
 from lightgbm import LGBMClassifier
 from sklearn.ensemble import StackingClassifier, ExtraTreesClassifier, RandomForestClassifier, \
@@ -366,7 +368,7 @@ def upload_to_s3():
     AWS_KEY = os.getenv('AWS_KEY')
     AWS_SECRET = os.getenv('AWS_SECRET')
     AWS_BUCKET = boto.connect_s3(AWS_KEY, AWS_SECRET).get_bucket('prod-is-data-science-bucket')
-    s3_upload_folder_path = 'csat_model/valohai/upload/'
+    s3_upload_folder_path = 'pro_to_pro_x/valohai/upload/'
     local_path = '/valohai/outputs/' + filename
     key = Key(AWS_BUCKET, s3_upload_folder_path + filename)
     key.set_contents_from_filename(local_path)
