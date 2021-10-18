@@ -358,7 +358,7 @@ def predict():
         print("Failed to sent message to data-science slack channel. please check the Workato recipe related to this.")
 
     final_prediction = pd.DataFrame(final_payload)
-    final_prediction.to_csv('/valohai/outputs/final_prediction.csv')
+    final_prediction.to_csv('/valohai/outputs/final_prediction.csv', index=False)
 
 
 def upload_to_s3():
