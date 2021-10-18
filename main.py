@@ -368,7 +368,7 @@ def upload_to_s3():
     AWS_KEY = os.getenv('AWS_KEY')
     AWS_SECRET = os.getenv('AWS_SECRET')
     AWS_BUCKET = boto.connect_s3(AWS_KEY, AWS_SECRET).get_bucket('prod-is-data-science-bucket')
-    s3_upload_folder_path = 'pro_to_pro_x/valohai/upload/'
+    s3_upload_folder_path = os.getenv('S3_PATH')
     local_path = '/valohai/outputs/' + filename
     key = Key(AWS_BUCKET, s3_upload_folder_path + filename)
     key.set_contents_from_filename(local_path)
