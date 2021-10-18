@@ -364,7 +364,7 @@ def predict():
 def upload_to_s3():
     df_with_predictions = pd.read_csv('/valohai/inputs/final_prediction/final_prediction.csv')
     filename = 'final_prediction.csv'
-    df_with_predictions.to_csv('/valohai/outputs/' + filename)
+    df_with_predictions.to_csv('/valohai/outputs/' + filename, index=False)
     AWS_KEY = os.getenv('AWS_KEY')
     AWS_SECRET = os.getenv('AWS_SECRET')
     AWS_BUCKET = boto.connect_s3(AWS_KEY, AWS_SECRET).get_bucket('prod-is-data-science-bucket')
