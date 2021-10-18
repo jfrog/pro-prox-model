@@ -362,7 +362,7 @@ def predict():
 
 
 def upload_to_s3():
-    df_with_predictions = pd.read_csv('/valohai/inputs/data_with_predictions/data_with_predictions.csv')
+    df_with_predictions = pd.read_csv('/valohai/inputs/final_prediction/final_prediction.csv')
     filename = 'final_prediction.csv'
     df_with_predictions.to_csv('/valohai/outputs/' + filename)
     AWS_KEY = os.getenv('AWS_KEY')
