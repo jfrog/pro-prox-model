@@ -215,8 +215,7 @@ def fit(model: str):
                   'max_depth': stats.randint(3, 10),
                   'max_features': ['auto', 'sqrt'],
                   'min_samples_split': stats.randint(3, 10),
-                  'min_samples_leaf': stats.randint(1, 5),
-                  'bootstrap': [True, False]}
+                  'min_samples_leaf': stats.randint(1, 5)}
         est = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
                                              random_state=5, loss="auto", scoring="Logloss")
 
