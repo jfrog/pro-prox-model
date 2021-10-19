@@ -211,11 +211,11 @@ def fit(model: str):
                                  bootstrap_type='Bayesian', rsm=0.1, verbose=0, loss_function=FocalLossObjective(),
                                  eval_metric="Logloss")
     elif model == 'hist':
-        params = {'n_estimators': [200, 500, 1000],
+        params = {'max_iter': [100, 250, 500, 1000],
+                  'max_leaf_nodes': stats.randint(2,100),
+                  'learning_rate': stats.uniform(0.01, 0.3),
                   'max_depth': stats.randint(3, 10),
-                  'max_features': ['auto', 'sqrt'],
-                  'min_samples_split': stats.randint(3, 10),
-                  'min_samples_leaf': stats.randint(1, 5)}
+                  'min_samples_leaf': stats.randint(1, 30)}
         est = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
                                              random_state=5, loss="auto", scoring="Logloss")
 
