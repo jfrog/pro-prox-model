@@ -186,8 +186,7 @@ def fit(model: str):
                      'max_depth': stats.randint(3, 10),
                      'max_features': ['auto', 'sqrt'],
                      'min_samples_split': stats.randint(3, 10),
-                     'min_samples_leaf': stats.randint(1, 5),
-                     'bootstrap': [True, False]}
+                     'min_samples_leaf': stats.randint(1, 5)}
         rf = RandomForestClassifier(criterion='entropy', n_estimators=2000, min_samples_split=5,
                                     min_samples_leaf=2, max_features='sqrt', bootstrap=True,
                                     oob_score=True, random_state=2, class_weight='balanced')
