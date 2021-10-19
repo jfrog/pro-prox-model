@@ -2,6 +2,7 @@ import json
 import os
 import pickle
 import boto
+from scipy import stats
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from catboost import CatBoostClassifier
@@ -12,7 +13,7 @@ from sklearn.ensemble import StackingClassifier, ExtraTreesClassifier, RandomFor
     HistGradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_curve, auc
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from utils.general_utils import load_data_old, load_data_valohai, get_cat_feature_names
 from utils.model_extensions_utils import FocalLossObjective
 from utils.plot_utils import Evaluation
@@ -184,16 +185,29 @@ def fit(model: str):
         clf = RandomForestClassifier(criterion='entropy', n_estimators=2000, min_samples_split=5,
                                      min_samples_leaf=2, max_features='sqrt', bootstrap=True,
                                      oob_score=True, random_state=2, class_weight='balanced')
+        clf.fit(X_train, y_train)
     elif model == 'etc':
         clf = ExtraTreesClassifier(n_estimators=2000, min_samples_split=50, min_samples_leaf=20,
                                    class_weight='balanced', max_features='sqrt', random_state=2)
+        clf.fit(X_train, y_train)
     elif model == 'cbc':
-        clf = CatBoostClassifier(cat_features=get_cat_feature_names(X), auto_class_weights="Balanced", random_state=5,
+        catboost_params_grid = {'iterations': [100, 250, 500, 1000],
+                                'learning_rate': stats.uniform(0.01, 0.3),
+                                'max_depth': stats.randint(3, 10),
+                                'l2_leaf_reg': stats.reciprocal(a=1e-2, b=1e1),
+                                'border_count': [5, 10, 20, 50, 100, 200],
+                                'bootstrap_type': ['Bernoulli', 'Bayesian', 'MVS']}
+        cbc = CatBoostClassifier(cat_features=get_cat_feature_names(X), auto_class_weights="Balanced", random_state=5,
                                  bootstrap_type='Bayesian', rsm=0.1, verbose=0)
+        clf = RandomizedSearchCV(estimator=cbc, param_distributions=catboost_params_grid,
+                                    scoring='average_precision',
+                                    refit=True, random_state=42, cv=4, n_iter=20, verbose=2, n_jobs=-1)
+        clf.fit(X_train, y_train)
     elif model == 'hist':
         clf = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
                                              random_state=5, loss="auto", scoring="Logloss")
-    clf.fit(X_train, y_train)
+        clf.fit(X_train, y_train)
+
     probas = clf.predict_proba(X_test)
     precision, recall, thresholds = precision_recall_curve(y_test, probas[:, 1])
     pr_auc = auc(recall, precision)
