@@ -222,7 +222,7 @@ def fit(model: str):
     precision, recall, thresholds = precision_recall_curve(y_test, probas[:, 1])
     pr_auc = auc(recall, precision)
     filename = model + '.sav'
-    pickle.dump(clf, open('/valohai/outputs/' + filename, 'wb'))
+    pickle.dump(clf_after_search, open('/valohai/outputs/' + filename, 'wb'))
     pr_auc_dict = {'pr_auc': pr_auc}
     print("pr_auc is: ")
     print(pr_auc)
