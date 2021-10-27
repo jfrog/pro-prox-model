@@ -3,20 +3,16 @@ import os
 import pickle
 import boto
 from scipy import stats
-from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from catboost import CatBoostClassifier
 import pandas as pd
 import numpy as np
-from lightgbm import LGBMClassifier
-from sklearn.ensemble import StackingClassifier, ExtraTreesClassifier, RandomForestClassifier, \
+from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier, \
     HistGradientBoostingClassifier
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_curve, auc
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from utils.general_utils import load_data_old, load_data_valohai, get_cat_feature_names
+from utils.general_utils import load_data_valohai, get_cat_feature_names
 from utils.model_extensions_utils import FocalLossObjective
-from utils.plot_utils import Evaluation
 from utils.fe_utils import get_growth_features
 import shap
 from dotenv import load_dotenv
@@ -176,12 +172,10 @@ def fit(model: str):
                     'period_range' in col or 'relevant_date' in col or 'account_id' in col
                     or 'class' in col or 'has_won' in col]
     X, y = new_df_proportioned.drop(cols_to_drop, axis=1).fillna(-1), new_df_proportioned['class']
-    print(len(X.columns))
-    for col in X.columns:
-        print(col)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=2)
     est = None
     params = None
+
     if model == 'rf':
         params = {'n_estimators': [200, 500, 1000],
                   'max_depth': stats.randint(3, 10),
