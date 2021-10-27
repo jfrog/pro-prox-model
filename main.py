@@ -217,6 +217,7 @@ def fit(model: str):
                              scoring='average_precision',
                              refit=True, random_state=5, cv=4, n_iter=20, verbose=2, n_jobs=-1)
     clf.fit(X_train, y_train)
+    clf_after_search = clf.best_estimator_
     probas = clf.predict_proba(X_test)
     precision, recall, thresholds = precision_recall_curve(y_test, probas[:, 1])
     pr_auc = auc(recall, precision)
