@@ -7,10 +7,13 @@ from boto.s3.key import Key
 from catboost import CatBoostClassifier
 import pandas as pd
 import numpy as np
+from scipy.spatial.distance import euclidean
 from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier, \
     HistGradientBoostingClassifier
 from sklearn.metrics import precision_recall_curve, auc
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
+from sklearn.preprocessing import StandardScaler
+
 from utils.general_utils import load_data_valohai, get_cat_feature_names
 from utils.model_extensions_utils import FocalLossObjective
 from utils.fe_utils import get_growth_features
@@ -206,7 +209,7 @@ def fit(model: str):
                                  eval_metric="Logloss")
     elif model == 'hist':
         params = {'max_iter': [100, 250, 500, 1000],
-                  'max_leaf_nodes': stats.randint(2,100),
+                  'max_leaf_nodes': stats.randint(2, 100),
                   'learning_rate': stats.uniform(0.01, 0.3),
                   'max_depth': stats.randint(3, 10),
                   'min_samples_leaf': stats.randint(1, 30)}
@@ -305,6 +308,7 @@ def make_bars():
 
 def predict():
     accounts = pd.read_csv('/valohai/inputs/processed_data/processed_data.csv')
+    processed_df_for_fit = pd.read_csv('/valohai/inputs/processed_data_for_fit/processed_data.csv')
     low_bar_for_predict = pd.read_csv('/valohai/inputs/low_bar_for_predict/low_bar_for_predict.csv', header=None,
                                       index_col=0, squeeze=True)
     high_bar_for_predict = pd.read_csv('/valohai/inputs/high_bar_for_predict/high_bar_for_predict.csv', header=None,
@@ -363,6 +367,48 @@ def predict():
     medium_percentage = round(((num_of_medium / num_of_accounts) * 100), 2)
     num_of_low = accounts['rating'].value_counts()['Low']
     low_percentage = round(((num_of_low / num_of_accounts) * 100), 2)
+
+    ### WHAT IF ANALYSIS
+    scaler = StandardScaler()
+    df_whatif_scaled = pd.DataFrame(scaler.fit_transform(accounts_clean), columns=accounts_clean.columns)
+    df_whatif_scaled['rating'] = accounts['rating']
+    bad_accounts = df_whatif_scaled[df_whatif_scaled['rating'] != 'High']
+    pred_class_for_train_data = top_model.predict_proba(processed_df_for_fit)
+    processed_df_for_fit['class'] = pred_class_for_train_data
+    train_data_for_whatif = processed_df_for_fit.loc[processed_df_for_fit['class'] >= high_bar_for_proba, :].drop(
+        'class', axis=1)
+    cat_cols = get_cat_feature_names(train_data_for_whatif)
+    print(cat_cols)
+    train_data_for_whatif['cat_val'] = train_data_for_whatif[cat_cols].apply(
+        lambda row: '_'.join(row.values.astype(str)), axis=1)
+    bad_accounts['cat_val'] = bad_accounts[cat_cols].apply(lambda row: '_'.join(row.values.astype(str)), axis=1)
+
+    for index, row in bad_accounts.iterrows():
+        train_data_subset = train_data_for_whatif.loc[train_data_for_whatif['cat_val'] == row['cat_val'], :]
+        train_data_subset_w_instance = pd.concat(train_data_subset, row)
+        train_data_subset_w_instance.drop('cat_val', axis=1, inplace=True)
+        df_whatif_scaled = pd.DataFrame(scaler.fit_transform(train_data_subset_w_instance),
+                                        columns=train_data_subset_w_instance.columns)
+        dists = [euclidean(df_whatif_scaled.iloc[-1], df_whatif_scaled.iloc[i]) for i in (range(df_whatif_scaled.shape[0] - 1))]
+        closet_obs = train_data_subset.iloc[np.argmin(dists)]
+        shap_values_train = shap.TreeExplainer(top_model).shap_values(closet_obs)
+        shap_values_sample = shap.TreeExplainer(top_model).shap_values(row)
+        print('SHAP 1')
+        print(shap_values_train)
+        print('SHAP 1')
+        print(shap_values_sample)
+
+        # TODO: predict class for train data V
+        # TODO: filter only high class V
+        # TODO: for both train data and new data, add column for categorical features V
+        # TODO: for each instance of new data in iteration, bring train data of same categorical values V
+        # TODO: attach the subset of train data with the current instance V
+        # TODO: remove the newly added categorical column V
+        # TODO: scale the concated df V
+        # TODO: find nearest neighbour for the instance we care for from the other data set V
+        # TODO: Calculate shap values for the neighboor's features and the current instance's features, calculate diffs
+        # TODO: Create recommendations based on the top diff feature
+
     message = "Pro ==> Pro-X Model - Out of " + str(num_of_accounts) + " accounts, " + str(
         num_of_high) + " accounts were marked as high chance of upgrading (" + str(high_percentage) + "%), " \
               + str(num_of_medium) + " accounts were marked as medium chance of upgrading (" + str(

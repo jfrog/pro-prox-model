@@ -131,6 +131,8 @@
         default: datum://017a8050-2eb8-27d1-dee1-9ba7bda9f069
       - name: top_model
         default: datum://017a8050-2eb8-27d1-dee1-9ba7bda9f069
+      - name: processed_data_for_fit
+        default: datum://017c6909-3bed-8508-0960-0c1b94513422
 
 
 - step:
@@ -223,6 +225,7 @@
             - name: low_bar_for_predict
             - name: high_bar_for_predict
             - name: top_model
+            - name: processed_data_for_fit
       - name: upload_to_s3
         type: execution
         step: upload_to_s3
@@ -238,6 +241,7 @@
       - [process_df_fit.output.*.csv, fit_hist.inputs.processed_data]
 #      - [process_df_fit.output.*.csv, ready_data_for_bars.inputs.data_for_bars]
       - [process_df_fit.output.*.csv, make_bars.inputs.processed_data]
+      - [process_df_fit.output.*.csv, predict.inputs.processed_data_for_fit]
       - [fit_rf.output.*.sav, choose.inputs.rf]
       - [fit_etc.output.*.sav, choose.inputs.etc]
       - [fit_cbc.output.*.sav, choose.inputs.cbc]
