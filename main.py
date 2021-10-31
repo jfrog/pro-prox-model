@@ -398,8 +398,9 @@ def predict():
         df_whatif_scaled = pd.DataFrame(scaler.fit_transform(train_data_subset_w_instance), columns=train_data_subset_w_instance.columns)
         print(df_whatif_scaled.head(50))
         df_whatif_scaled = df_whatif_scaled.fillna(0)
+        df_whatif_scaled_wo_sample = df_whatif_scaled.iloc[:-1, :]
         print(df_whatif_scaled.head(50))
-        dists = [euclidean(df_whatif_scaled.iloc[-1], df_whatif_scaled.iloc[i]) for i in (range(df_whatif_scaled.shape[0] - 1))]
+        dists = [euclidean(df_whatif_scaled.iloc[-1], df_whatif_scaled_wo_sample.iloc[i]) for i in (range(df_whatif_scaled_wo_sample.shape[0]))]
         print(np.argmin(dists))
         print(train_data_subset.shape)
         closet_obs = train_data_subset.iloc[np.argmin(dists)]
