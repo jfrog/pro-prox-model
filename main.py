@@ -378,7 +378,7 @@ def predict():
     df_whatif_scaled = pd.DataFrame(scaler.fit_transform(accounts_clean), columns=accounts_clean.columns)
     df_whatif_scaled['rating'] = accounts['rating']
     bad_accounts = df_whatif_scaled[df_whatif_scaled['rating'] != 'High']
-    pred_class_for_train_data = top_model.predict_proba(processed_df_for_fit)
+    pred_class_for_train_data = top_model.predict_proba(processed_df_for_fit)[:, 1]
     processed_df_for_fit['class'] = pred_class_for_train_data
     train_data_for_whatif = processed_df_for_fit.loc[processed_df_for_fit['class'] >= high_bar_for_proba, :].drop(
         'class', axis=1)
