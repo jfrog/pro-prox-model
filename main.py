@@ -396,6 +396,9 @@ def predict():
             print(col)
 
         df_whatif_scaled = pd.DataFrame(scaler.fit_transform(train_data_subset_w_instance), columns=train_data_subset_w_instance.columns)
+        print(df_whatif_scaled.head(50))
+        df_whatif_scaled = df_whatif_scaled.fillna(0)
+        print(df_whatif_scaled.head(50))
         dists = [euclidean(df_whatif_scaled.iloc[-1], df_whatif_scaled.iloc[i]) for i in (range(df_whatif_scaled.shape[0] - 1))]
         closet_obs = train_data_subset.iloc[np.argmin(dists)]
         shap_values_train = shap.TreeExplainer(top_model).shap_values(closet_obs)
