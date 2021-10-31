@@ -390,7 +390,7 @@ def predict():
 
     for index, row in bad_accounts.iterrows():
         train_data_subset = train_data_for_whatif.loc[train_data_for_whatif['cat_val'] == row['cat_val'], :]
-        train_data_subset_w_instance = pd.concat(train_data_subset, row)
+        train_data_subset_w_instance = pd.concat([train_data_subset, row])
         train_data_subset_w_instance.drop('cat_val', axis=1, inplace=True)
         df_whatif_scaled = pd.DataFrame(scaler.fit_transform(train_data_subset_w_instance),
                                         columns=train_data_subset_w_instance.columns)
