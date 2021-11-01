@@ -7,13 +7,12 @@ from boto.s3.key import Key
 from catboost import CatBoostClassifier
 import pandas as pd
 import numpy as np
-from scipy.spatial.distance import euclidean
+from scipy.spatial.distance import euclidean, cityblock
 from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier, \
     HistGradientBoostingClassifier
 from sklearn.metrics import precision_recall_curve, auc
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.preprocessing import StandardScaler
-
 from utils.general_utils import load_data_valohai, get_cat_feature_names
 from utils.model_extensions_utils import FocalLossObjective
 from utils.fe_utils import get_growth_features
@@ -394,15 +393,15 @@ def predict():
         df_whatif_scaled = df_whatif_scaled.fillna(0)
         sample = df_whatif_scaled.iloc[-1]
         df_whatif_scaled_wo_sample = df_whatif_scaled.iloc[:-1, :]
-        dists = [euclidean(sample, df_whatif_scaled_wo_sample.iloc[i]) for i in (range(df_whatif_scaled_wo_sample.shape[0]))]
+        dists = [cityblock(sample, df_whatif_scaled_wo_sample.iloc[i]) for i in (range(df_whatif_scaled_wo_sample.shape[0]))]
         closest_obs = train_data_subset.iloc[np.argmin(dists)]
-        print(closest_obs)
-        closest_obs_df = pd.DataFrame(closest_obs, columns=df_whatif_scaled.columns)
-        print(closest_obs_df)
-        # for col in top_model.feature_names_:
-        #     print(col)
+        for col in top_model.feature_names_:
+            print(col)
 
-        shap_values_train = shap.TreeExplainer(top_model).shap_values(closest_obs_df)
+        for col in closest_obs.columns:
+            print(col)
+
+        shap_values_train = shap.TreeExplainer(top_model).shap_values(closest_obs)
         shap_values_sample = shap.TreeExplainer(top_model).shap_values(row_trans)
         print('SHAP 1')
         print(shap_values_train)
