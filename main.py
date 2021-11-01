@@ -383,6 +383,8 @@ def predict():
     processed_df_for_fit['class_diff'] = processed_df_for_fit.apply(lambda row: 1 if row['class'] != row['class_pred'] else 0, axis=1)
     print('diff in classes:')
     print(np.sum(processed_df_for_fit['class_diff']))
+    print('out of')
+    print(processed_df_for_fit.shape[0])
 
 
     cat_cols = get_cat_feature_names(train_data_for_whatif)
