@@ -386,6 +386,9 @@ def predict():
     bad_accounts['cat_val'] = bad_accounts[cat_cols].apply(lambda row: '_'.join(row.values.astype(str)), axis=1)
 
     for index, row in bad_accounts.iterrows():
+        print("row")
+        print(row)
+        print(row.shape)
         print("train_data_for_whatif.shape")
         print(train_data_for_whatif.shape)
         train_data_subset = train_data_for_whatif.loc[train_data_for_whatif['cat_val'] == row['cat_val'], :]
