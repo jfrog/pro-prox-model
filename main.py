@@ -386,15 +386,16 @@ def predict():
     bad_accounts['cat_val'] = bad_accounts[cat_cols].apply(lambda row: '_'.join(row.values.astype(str)), axis=1)
 
     for index, row in bad_accounts.iterrows():
-        print("row")
-        print(row)
-        print(row.shape)
+        row_trans = pd.DataFrame(row)
+        print("row_trans")
+        print(row_trans)
+        print(row_trans.shape)
         print("train_data_for_whatif.shape")
         print(train_data_for_whatif.shape)
         train_data_subset = train_data_for_whatif.loc[train_data_for_whatif['cat_val'] == row['cat_val'], :]
         print("train_data_subset.shape")
         print(train_data_subset.shape)
-        train_data_subset_w_instance = pd.concat([train_data_subset, row.transpose()])
+        train_data_subset_w_instance = pd.concat([train_data_subset, row_trans.transpose()])
         print("train_data_subset_w_instance.shape")
         print(train_data_subset_w_instance.shape)
         train_data_subset_w_instance = train_data_subset_w_instance.drop(['cat_val', 0], axis=1)
