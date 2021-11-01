@@ -379,6 +379,7 @@ def predict():
     processed_df_for_fit['class_pred'] = pred_class_for_train_data
     train_data_for_whatif = processed_df_for_fit.loc[processed_df_for_fit['class_pred'] >= high_bar_for_proba, :].drop(
         'class_pred', axis=1)
+    processed_df_for_fit['class_pred'] = processed_df_for_fit['class_pred'].apply(lambda x: 1 if x in ['High', 'Medium'] else 0)
     processed_df_for_fit['class_diff'] = processed_df_for_fit.apply(lambda row: 1 if row['class'] != row['class_pred'] else 0, axis=1)
     print('diff in classes:')
     print(np.sum(processed_df_for_fit['class_diff']))
