@@ -376,9 +376,14 @@ def predict():
     scaler = StandardScaler()
     bad_accounts = accounts_clean[accounts['rating'] != 'High']
     pred_class_for_train_data = top_model.predict_proba(processed_df_for_fit)[:, 1]
-    processed_df_for_fit['class'] = pred_class_for_train_data
-    train_data_for_whatif = processed_df_for_fit.loc[processed_df_for_fit['class'] >= high_bar_for_proba, :].drop(
-        'class', axis=1)
+    processed_df_for_fit['class_pred'] = pred_class_for_train_data
+    train_data_for_whatif = processed_df_for_fit.loc[processed_df_for_fit['class_pred'] >= high_bar_for_proba, :].drop(
+        'class_pred', axis=1)
+    processed_df_for_fit['class_diff'] = processed_df_for_fit.apply(lambda row: 1 if row['class'] != row['class_pred'] else 0, axis=1)
+    print('diff in classes:')
+    print(np.sum(processed_df_for_fit['class_diff']))
+
+
     cat_cols = get_cat_feature_names(train_data_for_whatif)
     train_data_for_whatif['cat_val'] = train_data_for_whatif[cat_cols].apply(
         lambda row: '_'.join(row.values.astype(str)), axis=1)
@@ -405,10 +410,10 @@ def predict():
             print(shapa)
 
 
-        # TODO: predict class for train data V
-        # TODO: filter only high class V
-        # TODO: for both train data and new data, add column for categorical features V
-        # TODO: for each instance of new data in iteration, bring train data of same categorical values V
+        # TODO: predict class for train data
+        # TODO: filter only high class
+        # TODO: for both train data and new data, add column for categorical features
+        # TODO: for each instance of new data in iteration, bring train data of same categorical values
         # TODO: attach the subset of train data with the current instance V
         # TODO: remove the newly added categorical column V
         # TODO: scale the concated df V
