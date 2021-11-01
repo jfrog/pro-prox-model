@@ -398,10 +398,10 @@ def predict():
         for col in top_model.feature_names_:
             print(col)
 
-        for col in closest_obs.columns:
+        for col in closest_obs.to_frame().columns:
             print(col)
 
-        shap_values_train = shap.TreeExplainer(top_model).shap_values(closest_obs)
+        shap_values_train = shap.TreeExplainer(top_model).shap_values(closest_obs.to_frame())
         shap_values_sample = shap.TreeExplainer(top_model).shap_values(row_trans)
         print('SHAP 1')
         print(shap_values_train)
