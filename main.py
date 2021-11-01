@@ -397,7 +397,7 @@ def predict():
         dists = [euclidean(sample, df_whatif_scaled_wo_sample.iloc[i]) for i in (range(df_whatif_scaled_wo_sample.shape[0]))]
         closest_obs = train_data_subset.iloc[np.argmin(dists)]
         print(closest_obs)
-        closest_obs_df = pd.DataFrame(closest_obs, columns=df_whatif_scaled.columns).drop('cat_val', axis=1)
+        closest_obs_df = pd.DataFrame(closest_obs, columns=df_whatif_scaled.columns)
         print(closest_obs_df)
         # for col in top_model.feature_names_:
         #     print(col)
