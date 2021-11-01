@@ -396,9 +396,12 @@ def predict():
         dists = [cityblock(sample, df_whatif_scaled_wo_sample.iloc[i]) for i in (range(df_whatif_scaled_wo_sample.shape[0]))]
         # closest_obs = train_data_subset.iloc[np.argmin(dists)]
         closest_obs = train_data_subset.iloc[[np.argmin(dists)], range(train_data_subset.shape[1])].drop('cat_val', axis=1)
-        print(row_trans)
 
-        shap_values_total = shap.TreeExplainer(top_model).shap_values(pd.concat([closest_obs, row_trans], axis=0))
+        df_concat_for_shap = pd.concat([closest_obs, row_trans], axis=0)
+        print(df_concat_for_shap.shape)
+        df_concat_for_shap2 = pd.concat([closest_obs, row_trans.transpose()], axis=0)
+        print(df_concat_for_shap2.shape)
+        shap_values_total = shap.TreeExplainer(top_model).shap_values(df_concat_for_shap)
 
         print('SHAPs')
         print(shap_values_total)
