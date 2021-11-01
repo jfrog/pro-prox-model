@@ -401,8 +401,8 @@ def predict():
         shap_values_total = shap.TreeExplainer(top_model).shap_values(df_concat_for_shap)
         shap_diff = np.subtract(shap_values_total[0], shap_values_total[1])
         print('shap diffs')
-        for shap in shap_diff:
-            print(shap)
+        for shapa in shap_diff:
+            print(shapa)
 
 
         # TODO: predict class for train data V
