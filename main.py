@@ -395,6 +395,7 @@ def predict():
         df_whatif_scaled_wo_sample = df_whatif_scaled.iloc[:-1, :]
         dists = [cityblock(sample, df_whatif_scaled_wo_sample.iloc[i]) for i in (range(df_whatif_scaled_wo_sample.shape[0]))]
         closest_obs = train_data_subset.iloc[np.argmin(dists)]
+        print(closest_obs)
         for col in top_model.feature_names_:
             print(col)
 
