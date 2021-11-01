@@ -395,13 +395,14 @@ def predict():
         sample = df_whatif_scaled.iloc[-1]
         df_whatif_scaled_wo_sample = df_whatif_scaled.iloc[:-1, :]
         dists = [euclidean(sample, df_whatif_scaled_wo_sample.iloc[i]) for i in (range(df_whatif_scaled_wo_sample.shape[0]))]
-        closet_obs = train_data_subset.iloc[np.argmin(dists)]
-        print(closet_obs)
-        closet_obs_df = pd.DataFrame(closet_obs)
+        closest_obs = train_data_subset.iloc[np.argmin(dists)]
+        print(closest_obs)
+        closest_obs_df = pd.DataFrame(closest_obs, columns=df_whatif_scaled.columns).drop('cat_val', axis=1)
+        print(closest_obs_df)
         # for col in top_model.feature_names_:
         #     print(col)
 
-        shap_values_train = shap.TreeExplainer(top_model).shap_values(closet_obs_df)
+        shap_values_train = shap.TreeExplainer(top_model).shap_values(closest_obs_df)
         shap_values_sample = shap.TreeExplainer(top_model).shap_values(row_trans)
         print('SHAP 1')
         print(shap_values_train)
