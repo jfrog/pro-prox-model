@@ -394,15 +394,11 @@ def predict():
         sample = df_whatif_scaled.iloc[-1]
         df_whatif_scaled_wo_sample = df_whatif_scaled.iloc[:-1, :]
         dists = [cityblock(sample, df_whatif_scaled_wo_sample.iloc[i]) for i in (range(df_whatif_scaled_wo_sample.shape[0]))]
-        closest_obs = train_data_subset.iloc[np.argmin(dists)]
+        # closest_obs = train_data_subset.iloc[np.argmin(dists)]
+        closest_obs = train_data_subset.iloc[[np.argmin(dists)], range(train_data_subset.shape[1])].drop('cat_val', axis=1)
         print(closest_obs)
-        for col in top_model.feature_names_:
-            print(col)
 
-        for col in closest_obs.to_frame().columns:
-            print(col)
-
-        shap_values_train = shap.TreeExplainer(top_model).shap_values(pd.DataFrame(closest_obs, columns=closest_obs.index).drop('cat_val', axis=1))
+        shap_values_train = shap.TreeExplainer(top_model).shap_values(closest_obs)
         shap_values_sample = shap.TreeExplainer(top_model).shap_values(row_trans)
         print('SHAP 1')
         print(shap_values_train)
