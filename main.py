@@ -398,7 +398,7 @@ def predict():
         train_data_subset_w_instance = pd.concat([train_data_subset, row_trans.transpose()])
         print("train_data_subset_w_instance.shape")
         print(train_data_subset_w_instance.shape)
-        train_data_subset_w_instance = train_data_subset_w_instance.drop(['cat_val', 0], axis=1)
+        train_data_subset_w_instance = train_data_subset_w_instance.drop(['cat_val'], axis=1)
         print("train_data_subset_w_instance.shape")
         print(train_data_subset_w_instance.shape)
 
