@@ -389,19 +389,32 @@ def predict():
     bad_accounts['cat_val'] = bad_accounts[cat_cols].apply(lambda row: '_'.join(row.values.astype(str)), axis=1)
 
     for index, row in bad_accounts.iterrows():
+        print("train_data_for_whatif.shape")
+        print(train_data_for_whatif.shape)
         train_data_subset = train_data_for_whatif.loc[train_data_for_whatif['cat_val'] == row['cat_val'], :]
+        print("train_data_subset.shape")
+        print(train_data_subset.shape)
         train_data_subset_w_instance = pd.concat([train_data_subset, row])
-        train_data_subset_w_instance.drop(['cat_val', 0], axis=1, inplace=True)
-        for col in train_data_subset_w_instance.columns:
-            print(col)
+        print("train_data_subset_w_instance.shape")
+        print(train_data_subset_w_instance.shape)
+        train_data_subset_w_instance = train_data_subset_w_instance.drop(['cat_val', 0], axis=1)
+        print("train_data_subset_w_instance.shape")
+        print(train_data_subset_w_instance.shape)
 
         df_whatif_scaled = pd.DataFrame(scaler.fit_transform(train_data_subset_w_instance), columns=train_data_subset_w_instance.columns)
-        print(df_whatif_scaled.head(50))
+        print("df_whatif_scaled")
+        print(df_whatif_scaled)
         df_whatif_scaled = df_whatif_scaled.fillna(0)
+        print("df_whatif_scaled after fillna")
+        print(df_whatif_scaled)
         sample = df_whatif_scaled.iloc[-1]
+        print("sample.shape")
+        print(sample.shape)
         df_whatif_scaled_wo_sample = df_whatif_scaled.iloc[:-1, :]
-        print(df_whatif_scaled.head(50))
+        print("df_whatif_scaled_wo_sample.shape")
+        print(df_whatif_scaled_wo_sample.shape)
         dists = [euclidean(sample, df_whatif_scaled_wo_sample.iloc[i]) for i in (range(df_whatif_scaled_wo_sample.shape[0]))]
+        print(dists)
         print(np.argmin(dists))
         print(train_data_subset.shape)
         print(df_whatif_scaled_wo_sample.shape)
