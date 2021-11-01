@@ -399,9 +399,10 @@ def predict():
         df_concat_for_shap = pd.concat([closest_obs, row_trans.transpose()], axis=0)
         print(df_concat_for_shap.shape)
         shap_values_total = shap.TreeExplainer(top_model).shap_values(df_concat_for_shap)
-
-        print('SHAPs')
-        print(shap_values_total)
+        shap_diff = np.subtract(shap_values_total[0], shap_values_total[1])
+        print('shap diffs')
+        for shap in shap_diff:
+            print(shap)
 
 
         # TODO: predict class for train data V
