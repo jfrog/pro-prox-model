@@ -398,12 +398,11 @@ def predict():
         closest_obs = train_data_subset.iloc[[np.argmin(dists)], range(train_data_subset.shape[1])].drop('cat_val', axis=1)
         print(closest_obs)
 
-        shap_values_train = shap.TreeExplainer(top_model).shap_values(closest_obs)
-        shap_values_sample = shap.TreeExplainer(top_model).shap_values(row_trans)
-        print('SHAP 1')
-        print(shap_values_train)
-        print('SHAP 1')
-        print(shap_values_sample)
+        shap_values_total = shap.TreeExplainer(top_model).shap_values(pd.concat([closest_obs, row_trans], axis=0))
+
+        print('SHAPs')
+        print(shap_values_total)
+
 
         # TODO: predict class for train data V
         # TODO: filter only high class V
