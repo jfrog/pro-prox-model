@@ -402,7 +402,7 @@ def predict():
         for col in closest_obs.to_frame().columns:
             print(col)
 
-        shap_values_train = shap.TreeExplainer(top_model).shap_values(closest_obs.to_frame())
+        shap_values_train = shap.TreeExplainer(top_model).shap_values(pd.DataFrame(closest_obs, columns=closest_obs.index).drop('cat_val', axis=1))
         shap_values_sample = shap.TreeExplainer(top_model).shap_values(row_trans)
         print('SHAP 1')
         print(shap_values_train)
