@@ -375,15 +375,12 @@ def predict():
 
     ### WHAT IF ANALYSIS
     scaler = StandardScaler()
-    df_whatif_scaled = pd.DataFrame(scaler.fit_transform(accounts_clean), columns=accounts_clean.columns)
-    df_whatif_scaled['rating'] = accounts['rating']
-    bad_accounts = df_whatif_scaled[df_whatif_scaled['rating'] != 'High'].drop('rating', axis=1)
+    bad_accounts = accounts_clean[accounts_clean['rating'] != 'High'].drop('rating', axis=1)
     pred_class_for_train_data = top_model.predict_proba(processed_df_for_fit)[:, 1]
     processed_df_for_fit['class'] = pred_class_for_train_data
     train_data_for_whatif = processed_df_for_fit.loc[processed_df_for_fit['class'] >= high_bar_for_proba, :].drop(
         'class', axis=1)
     cat_cols = get_cat_feature_names(train_data_for_whatif)
-    print(cat_cols)
     train_data_for_whatif['cat_val'] = train_data_for_whatif[cat_cols].apply(
         lambda row: '_'.join(row.values.astype(str)), axis=1)
     bad_accounts['cat_val'] = bad_accounts[cat_cols].apply(lambda row: '_'.join(row.values.astype(str)), axis=1)
