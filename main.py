@@ -397,7 +397,7 @@ def predict():
         dists = [euclidean(sample, df_whatif_scaled_wo_sample.iloc[i]) for i in (range(df_whatif_scaled_wo_sample.shape[0]))]
         closet_obs = train_data_subset.iloc[np.argmin(dists)]
         print(closet_obs)
-        for col in top_model.coef_:
+        for col in top_model.feature_names_in_:
             print(col)
 
         shap_values_train = shap.TreeExplainer(top_model).shap_values(closet_obs)
