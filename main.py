@@ -407,6 +407,10 @@ def predict():
         df_concat_for_shap = pd.concat([closest_obs, row_trans.transpose()], axis=0)
         print(df_concat_for_shap.shape)
         shap_values_total = shap.TreeExplainer(top_model).shap_values(df_concat_for_shap)
+        print("shap 1")
+        print(shap_values_total[0])
+        print("shap 2")
+        print(shap_values_total[1])
         shap_diff = np.subtract(shap_values_total[0], shap_values_total[1])
         print('shap diffs')
         for shapa in shap_diff:
@@ -417,10 +421,10 @@ def predict():
         # TODO: filter only high class
         # TODO: for both train data and new data, add column for categorical features
         # TODO: for each instance of new data in iteration, bring train data of same categorical values
-        # TODO: attach the subset of train data with the current instance V
-        # TODO: remove the newly added categorical column V
-        # TODO: scale the concated df V
-        # TODO: find nearest neighbour for the instance we care for from the other data set V
+        # TODO: attach the subset of train data with the current instance
+        # TODO: remove the newly added categorical column
+        # TODO: scale the concated df
+        # TODO: find nearest neighbour for the instance we care for from the other data set
         # TODO: Calculate shap values for the neighboor's features and the current instance's features, calculate diffs
         # TODO: Create recommendations based on the top diff feature
 
