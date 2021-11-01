@@ -310,7 +310,7 @@ def predict():
     processed_df_for_fit = pd.read_csv('/valohai/inputs/processed_data_for_fit/processed_data.csv')
     cols_to_drop = [col for col in processed_df_for_fit.columns if
                     'period_range' in col or 'relevant_date' in col or 'account_id' in col
-                    or 'class' in col or 'has_won' in col]
+                    or 'has_won' in col]
     processed_df_for_fit = processed_df_for_fit.drop(cols_to_drop, axis=1).fillna(-1)
 
     low_bar_for_predict = pd.read_csv('/valohai/inputs/low_bar_for_predict/low_bar_for_predict.csv', header=None,
