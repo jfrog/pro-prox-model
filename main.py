@@ -408,13 +408,13 @@ def predict():
         print(df_concat_for_shap.shape)
         shap_values_total = shap.TreeExplainer(top_model).shap_values(df_concat_for_shap)
         shap_diff = np.subtract(shap_values_total[0], shap_values_total[1])
-        print("shap_1_length")
-        print(len(shap_values_total[0]))
-        print("shap_2_length")
-        print(len(shap_values_total[1]))
-        print('shap diffs')
-        for shapa in shap_diff:
-            print(shapa)
+        max_diff_loc = np.argmax(shap_diff)
+        print("feature name")
+        print(list(train_data_subset.columns)[max_diff_loc])
+        print("value in our instance")
+        print(row.iloc[max_diff_loc])
+        print("value in our instance")
+        print(closest_obs.iloc[max_diff_loc])
 
 
         # TODO: predict class for train data
