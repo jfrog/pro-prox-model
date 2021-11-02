@@ -407,10 +407,6 @@ def predict():
         df_concat_for_shap = pd.concat([closest_obs, row_trans.transpose()], axis=0)
         print(df_concat_for_shap.shape)
         shap_values_total = shap.TreeExplainer(top_model).shap_values(df_concat_for_shap)
-        print("shap 1")
-        print(shap_values_total[0])
-        print("shap 2")
-        print(shap_values_total[1])
         shap_diff = np.subtract(shap_values_total[0], shap_values_total[1])
         print('shap diffs')
         for shapa in shap_diff:
