@@ -334,7 +334,11 @@ def predict():
     shap_df = pd.DataFrame(shap_mat, columns=accounts_clean.columns)
     accounts['proba'] = top_model.predict_proba(accounts_clean)[:, 1]
     high_bar_for_proba = accounts['proba'].quantile(.85)
+    print("high bar is")
+    print(high_bar_for_proba)
     low_bar_for_proba = accounts['proba'].quantile(.7)
+    print("low bar is")
+    print(low_bar_for_proba)
     accounts['rating'] = accounts['proba'].apply(
         lambda x: 'High' if x >= high_bar_for_proba else 'Medium' if x >= low_bar_for_proba else 'Low')
 
@@ -379,13 +383,14 @@ def predict():
     processed_df_for_fit['class_pred'] = pred_class_for_train_data
     train_data_for_whatif = processed_df_for_fit.loc[processed_df_for_fit['class_pred'] >= high_bar_for_proba, :].drop(
         'class_pred', axis=1)
-    processed_df_for_fit['class_pred'] = processed_df_for_fit['class_pred'].apply(lambda x: 1 if x in ['High', 'Medium'] else 0)
-    processed_df_for_fit['class_diff'] = processed_df_for_fit.apply(lambda row: 1 if row['class'] != row['class_pred'] else 0, axis=1)
+    processed_df_for_fit['class_pred'] = processed_df_for_fit['class_pred'].apply(
+        lambda x: 1 if x in ['High', 'Medium'] else 0)
+    processed_df_for_fit['class_diff'] = processed_df_for_fit.apply(
+        lambda row: 1 if row['class'] != row['class_pred'] else 0, axis=1)
     print('diff in classes:')
     print(np.sum(processed_df_for_fit['class_diff']))
     print('out of')
     print(processed_df_for_fit.shape[0])
-
 
     cat_cols = get_cat_feature_names(train_data_for_whatif)
     train_data_for_whatif['cat_val'] = train_data_for_whatif[cat_cols].apply(
@@ -397,13 +402,16 @@ def predict():
         train_data_subset = train_data_for_whatif.loc[train_data_for_whatif['cat_val'] == row['cat_val'], :]
         train_data_subset_w_instance = pd.concat([train_data_subset, row_trans.transpose()])
         train_data_subset_w_instance = train_data_subset_w_instance.drop(['cat_val'], axis=1)
-        df_whatif_scaled = pd.DataFrame(scaler.fit_transform(train_data_subset_w_instance), columns=train_data_subset_w_instance.columns)
+        df_whatif_scaled = pd.DataFrame(scaler.fit_transform(train_data_subset_w_instance),
+                                        columns=train_data_subset_w_instance.columns)
         df_whatif_scaled = df_whatif_scaled.fillna(0)
         sample = df_whatif_scaled.iloc[-1]
         df_whatif_scaled_wo_sample = df_whatif_scaled.iloc[:-1, :]
-        dists = [cityblock(sample, df_whatif_scaled_wo_sample.iloc[i]) for i in (range(df_whatif_scaled_wo_sample.shape[0]))]
+        dists = [cityblock(sample, df_whatif_scaled_wo_sample.iloc[i]) for i in
+                 (range(df_whatif_scaled_wo_sample.shape[0]))]
         # closest_obs = train_data_subset.iloc[np.argmin(dists)]
-        closest_obs = train_data_subset.iloc[[np.argmin(dists)], range(train_data_subset.shape[1])].drop('cat_val', axis=1)
+        closest_obs = train_data_subset.iloc[[np.argmin(dists)], range(train_data_subset.shape[1])].drop('cat_val',
+                                                                                                         axis=1)
         df_concat_for_shap = pd.concat([closest_obs, row_trans.transpose()], axis=0)
         print(df_concat_for_shap.shape)
         shap_values_total = shap.TreeExplainer(top_model).shap_values(df_concat_for_shap)
@@ -416,8 +424,7 @@ def predict():
         print("value in our instance")
         print(closest_obs.iloc[max_diff_loc])
 
-
-        # TODO: predict class for train data
+        # TODO: predict class for train data V
         # TODO: filter only high class
         # TODO: for both train data and new data, add column for categorical features
         # TODO: for each instance of new data in iteration, bring train data of same categorical values
