@@ -108,10 +108,11 @@ def consolidate_opps():
     has_won = df.groupby('account_id', as_index=False).sum('class').loc[:, ['account_id', 'class']]
     has_won['has_won'] = has_won['class'].apply(lambda x: True if x > 0 else False)
     has_won.drop('class', axis=1, inplace=True)
-    new_df = df.merge(has_won, on='account_id')
+    new_df = df.merge(has_won[['account_id', 'has_won']], on='account_id')
     df_did_win, df_did_not_win = new_df[new_df['has_won']], new_df[~new_df['has_won']]
-    df_did_win = df_did_win[df_did_win['class'] == 1].groupby('account_id', as_index=False).min('relevant_date')
-    df_did_not_win = df_did_not_win.groupby('account_id').sample(n=1, random_state=2)
+    df_did_win = df_did_win.merge(df_did_win.groupby('account_id', as_index=False).agg({'relevant_date': 'min'}),
+                                  on=['account_id', 'relevant_date'])
+    df_did_not_win = df_did_not_win.groupby('account_id', as_index=False).sample(n=1, random_state=2)
     df = pd.concat([df_did_win, df_did_not_win])
     df = df.sample(frac=1, random_state=2).reset_index(drop=True)
     df.to_csv('/valohai/outputs/loaded_data.csv', index=False)
