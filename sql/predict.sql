@@ -1144,7 +1144,7 @@ SELECT DISTINCT a.account_id,
                 a.relevant_date,
                 a.class,
                 CASE
-                    WHEN a.territory = 'None' THEN 'unknown'
+                    WHEN (a.territory = 'None' OR a.territory = '' OR a.territory IS NULL) THEN 'unknown'
                     ELSE a.territory
                 END AS territory,
                 b1.*,
@@ -1179,8 +1179,8 @@ SELECT DISTINCT a.account_id,
  cb.developers,
  cb.total_employees_with_details,
  CASE
-     WHEN cb.industry_group = ''
-          OR cb.industry_group IS NULL THEN 'unknown'
+     WHEN (cb.industry_group = ''
+          OR cb.industry_group IS NULL) THEN 'unknown'
      ELSE industry_group
  END,
  CASE

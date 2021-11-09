@@ -1188,7 +1188,7 @@ SELECT DISTINCT a.account_id,
                 a.relevant_date,
                 a.class,
                 CASE
-                    WHEN a.territory = 'None' THEN 'unknown'
+                    WHEN (a.territory = 'None' OR a.territory IS NULL OR a.territory = '') THEN 'unknown'
                     ELSE a.territory
                 END AS territory,
                 b1.*,

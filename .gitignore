@@ -6,3 +6,4 @@ data/*
 catboost_info/
 __pycache__/
 .ipynb_checkpoints/
+.DS_Store
