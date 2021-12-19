@@ -93,7 +93,7 @@
       - pip install -r requirements.txt
       - python -c 'import prod_valohai; prod_valohai.predict_explain()'
     inputs:
-      - name: processed_data
+      - name: loaded_data
         default: datum://017dd268-1f23-ae96-9e5c-5135e77084b5
       - name: top_model
         default: datum://017dd2a8-b9fe-41ea-3b19-622a191283c7
