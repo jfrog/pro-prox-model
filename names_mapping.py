@@ -1,5 +1,5 @@
 
-def names_mapping(feature: str):
+def names_mapping():
     mapping = {'artifacts_size': 'Storage: artifacts size',
                'artifacts_count': 'Storage: artifacts count',
                'binaries_size': 'Storage: binaries size',
