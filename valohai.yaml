@@ -20,7 +20,7 @@
       - python -c 'import prod_valohai; prod_valohai.process_train()'
     inputs:
       - name: loaded_data
-        default: datum://017c69ed-31ca-9475-1fb1-c5df4e1ccd7c
+        default: datum://017dd268-d1e1-c83b-869d-2c22ec1d0ac2
 
 - step:
     name: fit_rf
@@ -94,7 +94,7 @@
       - python -c 'import prod_valohai; prod_valohai.predict_explain()'
     inputs:
       - name: processed_data
-        default: datum://017a8050-2eb8-27d1-dee1-9ba7bda9f069
+        default: datum://017dd268-1f23-ae96-9e5c-5135e77084b5
       - name: top_model
         default: datum://017a8050-2eb8-27d1-dee1-9ba7bda9f069
 
