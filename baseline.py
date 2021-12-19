@@ -14,6 +14,7 @@ from utils.plot_utils import Evaluation
 from utils.preprocessing_utils import Boruta_feature_selection, drop_by_correlation
 from utils.fe_utils import get_growth_features
 
+import seaborn as sns
 feature_selection = False
 random_search = False
 drop_correlated_features = False
