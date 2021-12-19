@@ -91,26 +91,4 @@ def get_technologies():
             'composer', 'puppet', 'conda', 'vagrant', 'cocoapods', 'cran', 'opkg', 'p2', 'vcs', 'alpine']
 
 
-# - load the trials data, and the training leads data with a pickle.  If it was loaded from the db lately than load the
-# corresponding pickle, otherwise load it from the db using load_data method. In the one hand we will not be up-to-date
-# in each time we work with the training data, but on the other hand we will not load the queries each time
 
-def load_train_trials_pickle(days_between_loads=7):
-    """
-
-    :param days_between_loads: how frequently we would like to load the data from the db
-    (instead of the pickle which is not up-to-date)
-    :return: the leads data of the training set  (labeled data), and the trials data
-    """
-    last_load_time = pickle.load(open(r'pickle/last_load_time.pkl', 'rb'))
-    if (date.today() - last_load_time).days >= days_between_loads:
-        df_train = load_data('get_data_train.sql')
-        df_trials = load_data('get_trials.sql')
-        pickle.dump(df_train, open(r'pickle/df_train.pkl', 'wb'))
-        pickle.dump(df_trials, open(r'pickle/df_trails.pkl', 'wb'))
-        last_load_time = date.today()
-        pickle.dump(last_load_time, open(r'pickle/last_load_time.pkl', 'wb'))
-    else:
-        df_train = pickle.load(open(r'pickle/df_train.pkl', 'rb'))
-        df_trials = pickle.load(open(r'pickle/df_trails.pkl', 'rb'))
-    return df_train, df_trials
