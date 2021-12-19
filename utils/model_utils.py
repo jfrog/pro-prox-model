@@ -53,5 +53,18 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
     elif agg_scores == 'median':
         agged_scores = np.median(cv_scores)
     clf.fit(X, y)
+    if model == 'rf':
+        best_clf = RandomForestClassifier(criterion='entropy', bootstrap=True, oob_score=True, random_state=2,
+                                          class_weight='balanced', **clf.best_params_)
+    elif model == 'etc':
+        best_clf = ExtraTreesClassifier(class_weight='balanced', random_state=2, **clf.best_params_)
+    elif model == 'cbc':
+        best_clf = CatBoostClassifier(cat_features=get_cat_feature_names(X), auto_class_weights="Balanced", random_state=5,
+                                      bootstrap_type='Bayesian', rsm=0.1, verbose=0, loss_function=FocalLossObjective(),
+                                      eval_metric="Logloss", **clf.best_params_)
+    elif model == 'hist':
+        best_clf = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
+                                                  random_state=5, loss="auto", scoring="Logloss", **clf.best_params_)
+    best_clf.fit(X, y)
     return agged_scores, clf
 
