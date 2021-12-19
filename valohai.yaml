@@ -165,7 +165,7 @@
         step: predict_explain
         override:
           inputs:
-            - name: processed_data
+            - name: loaded_data
             - name: top_model
       - name: upload_to_s3
         type: execution
