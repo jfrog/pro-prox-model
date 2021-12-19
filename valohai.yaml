@@ -74,7 +74,7 @@
       - name: etc
         default: datum://017dd2e9-eee3-e6d6-3f1f-01d57a96d2a9
       - name: cbc
-        default: datum://017dd27f-06a3-8235-11a6-89b36c0fc779
+        default: datum://017dd2ff-f88d-914e-fea8-b9b24d48a9bd
       - name: hist
         default: datum://017dd2ea-67e6-18b2-faf0-b6df35bae8b1
       - name: rf_pr_auc
@@ -82,7 +82,7 @@
       - name: etc_pr_auc
         default: datum://017dd2e9-efda-854a-46d7-cd225aa54860
       - name: cbc_pr_auc
-        default: datum://017dd27f-07a9-06ce-e573-336a9805c03e
+        default: datum://017dd2ff-f98b-c644-3b78-93e5ee58ef7d
       - name: hist_pr_auc
         default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
 
