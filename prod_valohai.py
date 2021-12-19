@@ -60,7 +60,7 @@ def choose_best_model():
 
 
 def predict_explain():
-    df_test = pd.read_csv('/valohai/inputs/loaded_data/fit.csv', sep=';')
+    df_test = pd.read_csv('/valohai/inputs/loaded_data/predict.csv', sep=';')
     df_test = pro_upsell_preprocess(df_test.copy())
     cols_to_drop = [col for col in df_test.columns if
                     'period_range' in col or 'relevant_date' in col or 'account_id' in col

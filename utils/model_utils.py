@@ -14,8 +14,7 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
                   'max_depth': stats.randint(3, 10),
                   'max_features': ['auto', 'sqrt'],
                   'min_samples_split': stats.randint(3, 10),
-                  'min_samples_leaf': stats.randint(1, 5),
-                  'class_weight': 'balanced'}
+                  'min_samples_leaf': stats.randint(1, 5)}
         est = RandomForestClassifier(criterion='entropy', bootstrap=True,
                                      oob_score=True, random_state=2, class_weight='balanced')
     elif model == 'etc':
