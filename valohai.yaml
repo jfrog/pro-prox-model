@@ -30,7 +30,7 @@
       - python -c 'import prod_valohai; prod_valohai.fit_evaluate("rf")'
     inputs:
       - name: processed_data
-        default: datum://017c692b-97f1-e890-9eef-7aeaf5e9e393
+        default: datum://017dd272-6fc1-4f37-a844-339711cfccdb
 
 - step:
     name: fit_etc
@@ -40,7 +40,7 @@
       - python -c 'import prod_valohai; prod_valohai.fit_evaluate("etc")'
     inputs:
       - name: processed_data
-        default: datum://017c692b-97f1-e890-9eef-7aeaf5e9e393
+        default: datum://017dd272-6fc1-4f37-a844-339711cfccdb
 
 - step:
     name: fit_cbc
@@ -50,7 +50,7 @@
       - python -c 'import prod_valohai; prod_valohai.fit_evaluate("cbc")'
     inputs:
       - name: processed_data
-        default: datum://017c692b-97f1-e890-9eef-7aeaf5e9e393
+        default: datum://017dd272-6fc1-4f37-a844-339711cfccdb
 
 - step:
     name: fit_hist
@@ -60,7 +60,7 @@
       - python -c 'import prod_valohai; prod_valohai.fit_evaluate("hist")'
     inputs:
       - name: processed_data
-        default: datum://017c692b-97f1-e890-9eef-7aeaf5e9e393
+        default: datum://017dd272-6fc1-4f37-a844-339711cfccdb
 
 - step:
     name: choose_best_model
