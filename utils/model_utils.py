@@ -66,5 +66,5 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
         best_clf = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
                                                   random_state=5, loss="auto", scoring="Logloss", **clf.best_params_)
     best_clf.fit(X, y)
-    return agged_scores, clf
+    return agged_scores, best_clf
 
