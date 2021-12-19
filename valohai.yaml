@@ -96,7 +96,7 @@
       - name: processed_data
         default: datum://017dd268-1f23-ae96-9e5c-5135e77084b5
       - name: top_model
-        default: datum://017a8050-2eb8-27d1-dee1-9ba7bda9f069
+        default: datum://017dd2a8-b9fe-41ea-3b19-622a191283c7
 
 - step:
     name: upload_to_s3
