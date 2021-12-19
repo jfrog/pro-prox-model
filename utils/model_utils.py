@@ -33,8 +33,7 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
                   'border_count': [5, 10, 20, 50, 100, 200],
                   'bootstrap_type': ['Bernoulli', 'Bayesian', 'MVS']}
         est = CatBoostClassifier(cat_features=get_cat_feature_names(X), auto_class_weights="Balanced", random_state=5,
-                                 bootstrap_type='Bayesian', rsm=0.1, verbose=0, loss_function=FocalLossObjective(),
-                                 eval_metric="Logloss")
+                                 rsm=0.1, verbose=0, loss_function=FocalLossObjective(), eval_metric="Logloss")
     elif model == 'hist':
         params = {'max_iter': [100, 250, 500, 1000],
                   'max_leaf_nodes': stats.randint(2,100),
@@ -60,8 +59,7 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
         best_clf = ExtraTreesClassifier(class_weight='balanced', random_state=2, **clf.best_params_)
     elif model == 'cbc':
         best_clf = CatBoostClassifier(cat_features=get_cat_feature_names(X), auto_class_weights="Balanced", random_state=5,
-                                      bootstrap_type='Bayesian', rsm=0.1, verbose=0, loss_function=FocalLossObjective(),
-                                      eval_metric="Logloss", **clf.best_params_)
+                                      rsm=0.1, verbose=0, loss_function=FocalLossObjective(), eval_metric="Logloss", **clf.best_params_)
     elif model == 'hist':
         best_clf = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
                                                   random_state=5, loss="auto", scoring="Logloss", **clf.best_params_)
