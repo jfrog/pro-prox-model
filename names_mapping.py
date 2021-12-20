@@ -64,4 +64,4 @@ def names_mapping():
                'n_repos_quarter_growth': 'Number of repositories quarterly growth',
                'number_of_permissions_quarter_growth': 'Number of permissions quarterly growth',
                'internal_groups_quarter_growth': 'Number of internal groups quarterly growth'}
-    return names_mapping
+    return mapping
