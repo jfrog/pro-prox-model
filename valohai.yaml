@@ -106,7 +106,7 @@
       - python -c 'import prod_valohai; prod_valohai.upload_to_s3()'
     inputs:
       - name: final_prediction
-        default: datum://017dd325-7325-70d7-304a-d43c716f672a
+        default: datum://017dd6be-f0ad-3f17-fd00-c5277d2dfab9
 
 - pipeline:
     name: pro_to_prox_first_pipeline
