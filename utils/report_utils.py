@@ -82,6 +82,8 @@ def create_output_table(result_df, model, X_test, n_largest=5, X_test_disc=None)
     output_with_shap = pd.melt(output_with_shap, id_vars=['account_id']).dropna()
     output_df = output_with_features.merge(output_with_shap, on=['account_id', 'variable'])
     output_df.columns = list(result_df.columns) + ['feature', 'feature_value', 'shap_importance']
+    output_df['relative_value'] = np.nan
+    output_df = output_df[['account_id', 'prob', 'rating', 'feature', 'feature_value', 'relative_value', 'shap_importance']]
     return output_df
 
 
