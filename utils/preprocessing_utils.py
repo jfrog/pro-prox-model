@@ -63,9 +63,6 @@ def consolidate_opps(df_train):
     return df_train
 
 
-
-
-
 def Boruta_feature_selection(X_train, y_train, X_test, random_state=0, alpha=0.05):
     X_train_labeld = X_train[y_train != -1]
     y_train_labeld = y_train[y_train != -1]

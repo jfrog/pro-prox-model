@@ -5,7 +5,8 @@ import numpy as np
 from tqdm import tqdm
 from scipy.stats import ks_2samp
 from sklearn.model_selection import RepeatedStratifiedKFold
-from sklearn.metrics import precision_recall_curve, auc, f1_score, classification_report, confusion_matrix, accuracy_score, average_precision_score
+from sklearn.metrics import precision_recall_curve, auc, f1_score, classification_report, confusion_matrix, \
+    accuracy_score, average_precision_score, recall_score, precision_score
 from scipy import interp
 # from yellowbrick.cluster import KElbowVisualizer
 from sklearn.cluster import KMeans
@@ -142,6 +143,8 @@ class Evaluation:
 
     def plot_confusion_matrix(self, y_test, y_pred):
         sns.set(font_scale=self.font_scale)
+        recall = np.round(recall_score(y_true=y_test, y_pred=y_pred), 3)
+        precision = np.round(precision_score(y_true=y_test, y_pred=y_pred), 3)
         cf_matrix = confusion_matrix(y_test, y_pred)
         group_names = ['True Neg', 'False Pos', 'False Neg', 'True Pos']
         group_counts = ["{0:0.0f}".format(value) for value in cf_matrix.flatten()]
@@ -149,6 +152,10 @@ class Evaluation:
         labels = [f"{v1}\n{v2}\n{v3}" for v1, v2, v3 in zip(group_names, group_counts, group_percentages)]
         labels = np.asarray(labels).reshape(2, 2)
         sns.heatmap(cf_matrix, annot=labels, fmt='', cmap='Blues')
+        plt.text(1.7, 2.0, 'Recall: ' + str(recall), style='italic', fontsize=10,
+                 bbox={'facecolor': 'grey', 'alpha': 0.5, 'pad': 2})
+        plt.text(1.7, 2.1, 'Precision: ' + str(precision), style='italic', fontsize=10,
+                 bbox={'facecolor': 'grey', 'alpha': 0.5, 'pad': 2})
         plt.show()
 
     def plot_precision_recall_test(self, y_true, y_scores, title=''):

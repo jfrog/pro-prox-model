@@ -25,7 +25,8 @@ def create_output_table(result_df, model, X_test, n_largest=5, X_test_disc=None)
 
     shap_df = pd.DataFrame(shap_mat, columns=X_test.columns)
     cols_to_drop = ['artifacts/binaries_size', 'artifacts/binaries_count', 'did_sessions_and_cases_last_year',
-                    'territory', 'replys_to_sent', 'count_pro', 'days_from_indexed_repos_change']
+                    'territory', 'replys_to_sent', 'count_pro', 'days_from_indexed_repos_change',
+                    'n_replys', 'n_calls', 'n_task_xray', 'engineers', 'devops_engineers', 'developers']
     cols_to_drop += [col for col in X_test.columns if '/seniority' in col]
     shap_df = shap_df.drop(cols_to_drop, axis=1, errors='ignore')
     X_test_disc = X_test_disc.reset_index(drop=True)
