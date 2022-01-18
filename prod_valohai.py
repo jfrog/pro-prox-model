@@ -46,7 +46,7 @@ def fit_evaluate(model, n_folds=5):
 
 def choose_best_model():
     rf, rf_pr_auc = load_score_and_model('rf')
-    etc, etc_pr_auc = load_score_and_model('etc')
+    etc, etc_pr_auc = load_score_and_model('lgb')
     cbc, cbc_pr_auc = load_score_and_model('cbc')
     hist, hist_pr_auc = load_score_and_model('hist')
 

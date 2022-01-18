@@ -33,11 +33,11 @@
         default: datum://017dd272-6fc1-4f37-a844-339711cfccdb
 
 - step:
-    name: fit_etc
+    name: fit_lgb
     image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
-      - python -c 'import prod_valohai; prod_valohai.fit_evaluate("etc")'
+      - python -c 'import prod_valohai; prod_valohai.fit_evaluate("lgb")'
     inputs:
       - name: processed_data
         default: datum://017dd272-6fc1-4f37-a844-339711cfccdb
@@ -71,7 +71,7 @@
     inputs:
       - name: rf
         default: datum://017dd2ed-8c7a-652c-d21d-6f02befe309f
-      - name: etc
+      - name: lgb
         default: datum://017dd2e9-eee3-e6d6-3f1f-01d57a96d2a9
       - name: cbc
         default: datum://017dd2ff-f88d-914e-fea8-b9b24d48a9bd
@@ -79,7 +79,7 @@
         default: datum://017dd2ea-67e6-18b2-faf0-b6df35bae8b1
       - name: rf_pr_auc
         default: datum://017dd2ed-8db9-3da7-fd13-5088557a0f61
-      - name: etc_pr_auc
+      - name: lgb_pr_auc
         default: datum://017dd2e9-efda-854a-46d7-cd225aa54860
       - name: cbc_pr_auc
         default: datum://017dd2ff-f98b-c644-3b78-93e5ee58ef7d
@@ -129,9 +129,9 @@
         override:
           inputs:
             - name: processed_data
-      - name: fit_etc
+      - name: fit_lgb
         type: execution
-        step: fit_etc
+        step: fit_lgb
         override:
           inputs:
             - name: processed_data
@@ -154,8 +154,8 @@
           inputs:
             - name: rf
             - name: rf_pr_auc
-            - name: etc
-            - name: etc_pr_auc
+            - name: lgb
+            - name: lgb_pr_auc
             - name: cbc
             - name: cbc_pr_auc
             - name: hist
@@ -176,15 +176,15 @@
     edges:
       - [load_data_train.output.*.csv, process_train.inputs.loaded_data]
       - [process_train.output.*.csv, fit_rf.inputs.processed_data]
-      - [process_train.output.*.csv, fit_etc.inputs.processed_data]
+      - [process_train.output.*.csv, fit_lgb.inputs.processed_data]
       - [process_train.output.*.csv, fit_cbc.inputs.processed_data]
       - [process_train.output.*.csv, fit_hist.inputs.processed_data]
       - [fit_rf.output.*.sav, choose_best_model.inputs.rf]
-      - [fit_etc.output.*.sav, choose_best_model.inputs.etc]
+      - [fit_lgb.output.*.sav, choose_best_model.inputs.lgb]
       - [fit_cbc.output.*.sav, choose_best_model.inputs.cbc]
       - [fit_hist.output.*.sav, choose_best_model.inputs.hist]
       - [fit_rf.output.*.json, choose_best_model.inputs.rf_pr_auc]
-      - [fit_etc.output.*.json, choose_best_model.inputs.etc_pr_auc]
+      - [fit_lgb.output.*.json, choose_best_model.inputs.lgb_pr_auc]
       - [fit_cbc.output.*.json, choose_best_model.inputs.cbc_pr_auc]
       - [fit_hist.output.*.json, choose_best_model.inputs.hist_pr_auc]
       - [choose_best_model.output.*.sav, predict_explain.inputs.top_model]

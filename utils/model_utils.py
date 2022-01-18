@@ -1,8 +1,10 @@
 import numpy as np
+import scipy
 from scipy import stats
 from catboost import CatBoostClassifier
 from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier, \
     HistGradientBoostingClassifier
+from lightgbm import LGBMClassifier
 from sklearn.model_selection import cross_val_score, RandomizedSearchCV
 from utils.general_utils import get_cat_feature_names
 from utils.model_extensions_utils import FocalLossObjective
@@ -17,14 +19,16 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
                   'min_samples_leaf': stats.randint(1, 5)}
         est = RandomForestClassifier(criterion='entropy', bootstrap=True,
                                      oob_score=True, random_state=2, class_weight='balanced')
-    elif model == 'etc':
-        params = {'n_estimators': [200, 500, 1000],
-                  'max_depth': stats.randint(3, 10),
-                  'max_features': ['auto', 'sqrt'],
-                  'min_samples_split': stats.randint(3, 10),
-                  'min_samples_leaf': stats.randint(1, 5),
-                  'bootstrap': [True, False]}
-        est = ExtraTreesClassifier(class_weight='balanced', random_state=2)
+    elif model == 'lgb':
+        params = {'num_leaves': scipy.stats.randint(6, 50),
+                           'min_child_samples': scipy.stats.randint(100, 500),
+                           'min_child_weight': [1e-5, 1e-3, 1e-2, 1e-1, 1, 1e1, 1e2, 1e3, 1e4],
+                           'learning_rate': scipy.stats.uniform(0.01, 0.3),
+                           'subsample': scipy.stats.uniform(loc=0.2, scale=0.8),
+                           'colsample_bytree': scipy.stats.uniform(loc=0.4, scale=0.6),
+                           'reg_alpha': [0, 1e-1, 1, 2, 5, 7, 10, 50, 100],
+                           'reg_lambda': [0, 1e-1, 1, 5, 10, 20, 50, 100]}
+        est = LGBMClassifier(class_weight='balanced', random_state=5)
     elif model == 'cbc':
         params = {'iterations': [100, 250, 500, 1000],
                   'learning_rate': stats.uniform(0.01, 0.3),
@@ -55,8 +59,8 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
     if model == 'rf':
         best_clf = RandomForestClassifier(criterion='entropy', bootstrap=True, oob_score=True, random_state=2,
                                           class_weight='balanced', **clf.best_params_)
-    elif model == 'etc':
-        best_clf = ExtraTreesClassifier(class_weight='balanced', random_state=2, **clf.best_params_)
+    elif model == 'lgb':
+        best_clf = LGBMClassifier(class_weight='balanced', random_state=5, **clf.best_params_)
     elif model == 'cbc':
         best_clf = CatBoostClassifier(cat_features=get_cat_feature_names(X), auto_class_weights="Balanced", random_state=5,
                                       rsm=0.1, verbose=0, loss_function=FocalLossObjective(), eval_metric="Logloss", **clf.best_params_)
