@@ -106,7 +106,7 @@
       - name: top_model
         default: datum://017dd31b-b6a3-b444-4495-6181d05903ac
       - name: top_model_cols
-        default: datum://017dd31b-b6a3-b444-4495-6181d05903ac
+        default: datum://017ee45f-1447-5511-e2cd-57ff58674a4c
 
 - step:
     name: upload_to_s3
