@@ -92,7 +92,7 @@
       - name: cbc_columns
         default: datum://017ee409-f6fd-9bb0-41ce-ebbd0b3b5b71
       - name: hist_columns
-        default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
+        default: datum://017ee431-0365-aabf-faf2-69ffb41e8e09
 
 - step:
     name: predict_explain
