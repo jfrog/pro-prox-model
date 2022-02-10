@@ -48,10 +48,13 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
         est = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
                                              random_state=5, loss="auto", scoring="Logloss")
 
-    feature_importance = Evaluation().plot_cv_precision_recall(clf=est, n_folds=n_folds, n_repeats=1, X=X, y=y)
-    feature_importance['average_importance'] = feature_importance[[f'fold_{fold_n + 1}' for fold_n in range(n_folds)]].mean(axis=1)
-    features_to_keep = feature_importance.sort_values(by='average_importance', ascending=False).head(n_features_to_keep)['feature']
-    X_selected = X[features_to_keep]
+    if model != 'hist':
+        feature_importance = Evaluation().plot_cv_precision_recall(clf=est, n_folds=n_folds, n_repeats=1, X=X, y=y)
+        feature_importance['average_importance'] = feature_importance[[f'fold_{fold_n + 1}' for fold_n in range(n_folds)]].mean(axis=1)
+        features_to_keep = feature_importance.sort_values(by='average_importance', ascending=False).head(n_features_to_keep)['feature']
+        X_selected = X[features_to_keep]
+    else:
+        X_selected = X.copy()
 
     clf = RandomizedSearchCV(estimator=est, param_distributions=params,
                              scoring=scoring, refit=True, random_state=5, cv=n_folds, n_iter=n_iter,

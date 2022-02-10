@@ -86,9 +86,9 @@
       - name: hist_pr_auc
         default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
       - name: rf_columns
-        default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
+        default: datum://017ee3fb-0d7b-17af-bebc-70a059858b55
       - name: lgb_columns
-        default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
+        default: datum://017ee3ff-f9d5-0e65-2e62-ea4cd557d840
       - name: cbc_columns
         default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
       - name: hist_columns
