@@ -8,6 +8,7 @@ from boto.s3.key import Key
 import pandas as pd
 import numpy as np
 from utils.general_utils import load_data_valohai, get_cat_feature_names
+from utils.plot_utils import Evaluation
 from utils.preprocessing_utils import pro_upsell_preprocess, consolidate_opps
 from utils.model_utils import cv_evaluation
 from dotenv import load_dotenv
@@ -30,14 +31,21 @@ def process_train():
     df_train.to_csv('/valohai/outputs/processed_data.csv', index=False)
 
 
-def fit_evaluate(model, n_folds=5):
+def fit_evaluate(model, n_folds=5, feature_selection=True, n_features_to_keep=50):
     df_train = pd.read_csv('/valohai/inputs/processed_data/processed_data.csv')
     cols_to_drop = [col for col in df_train.columns if
                     'period_range' in col or 'relevant_date' in col or 'account_id' in col
                     or 'class' in col or 'has_won' in col]
     X, y = df_train.drop(cols_to_drop, axis=1).fillna(-1), df_train['class']
     score, clf = cv_evaluation(model=model, X=X, y=y, n_folds=n_folds, scoring='average_precision', n_iter=20)
+    if feature_selection:
+        feature_importance = Evaluation().plot_cv_precision_recall(clf=clf, n_folds=n_folds, n_repeats=1, X=X, y=y)
+        feature_importance['average_importance'] = feature_importance[[f'fold_{fold_n + 1}' for fold_n in range(n_folds)]].mean(axis=1)
+        features_to_keep = feature_importance.sort_values(by='average_importance', ascending=False).head(n_features_to_keep)['feature']
+        X_selected = X[features_to_keep]
+        clf.fit(X_selected, y)
     pickle.dump(clf, open('/valohai/outputs/' + model + '.sav', 'wb'))
+    pickle.dump(X_selected.columns, open('/valohai/outputs/' + model + '_columns.sav', 'wb'))
     pr_auc_dict = {'pr_auc': score}
     print("pr_auc is: " + str(score))
     with open('/valohai/outputs/' + model + '_pr_auc.json', 'w') as outfile:
@@ -55,20 +63,24 @@ def choose_best_model():
     max_pr_auc = np.max(scores)
     top_model = models[np.argmax(scores)]
 
+    x_cols = pickle.load(open('/valohai/inputs/' + str(top_model) + '_columns' + '/' + str(top_model) + '_columns' + '.sav', 'rb'))
     print("Top model is: " + str(top_model) + " with pr_auc of: " + str(max_pr_auc))
     pickle.dump(top_model, open('/valohai/outputs/' + 'top_model.sav', 'wb'))
+    pickle.dump(x_cols, open('/valohai/outputs/' + 'top_model_cols.sav', 'wb'))
 
 
 def predict_explain():
+    x_cols = pickle.load(open('/valohai/inputs/top_model/top_model_cols.sav', 'rb'))
+    ##columns = pickle.load(open('/valohai/inputs/top_model/top_model.sav', 'rb'))
     df_test = pd.read_csv('/valohai/inputs/loaded_data/predict.csv', sep=';')
     df_test = pro_upsell_preprocess(df_test.copy())
     cols_to_drop = [col for col in df_test.columns if
                     'period_range' in col or 'relevant_date' in col or 'account_id' in col
                     or 'class' in col or 'has_won' in col]
     X_test = df_test.drop(cols_to_drop, axis=1).fillna(-1)
+    X_test = X_test[x_cols]
 
     top_model = pickle.load(open('/valohai/inputs/top_model/top_model.sav', 'rb'))
-
     res_df = pd.DataFrame()
     res_df['account_id'] = df_test['account_id']
     res_df['prob'] = top_model.predict_proba(X_test)[:, 1]

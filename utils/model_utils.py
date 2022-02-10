@@ -8,9 +8,10 @@ from lightgbm import LGBMClassifier
 from sklearn.model_selection import cross_val_score, RandomizedSearchCV
 from utils.general_utils import get_cat_feature_names
 from utils.model_extensions_utils import FocalLossObjective
+from utils.plot_utils import Evaluation
 
 
-def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision', agg_scores='mean'):
+def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision', agg_scores='mean', n_features_to_keep=50):
     if model == 'rf':
         params = {'n_estimators': [200, 500, 1000],
                   'max_depth': stats.randint(3, 10),
@@ -47,10 +48,15 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
         est = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
                                              random_state=5, loss="auto", scoring="Logloss")
 
+    feature_importance = Evaluation().plot_cv_precision_recall(clf=est, n_folds=n_folds, n_repeats=1, X=X, y=y)
+    feature_importance['average_importance'] = feature_importance[[f'fold_{fold_n + 1}' for fold_n in range(n_folds)]].mean(axis=1)
+    features_to_keep = feature_importance.sort_values(by='average_importance', ascending=False).head(n_features_to_keep)['feature']
+    X_selected = X[features_to_keep]
+
     clf = RandomizedSearchCV(estimator=est, param_distributions=params,
                              scoring=scoring, refit=True, random_state=5, cv=n_folds, n_iter=n_iter,
                              verbose=2, n_jobs=-1)
-    cv_scores = cross_val_score(estimator=clf, X=X, y=y, cv=n_folds, scoring=scoring)
+    cv_scores = cross_val_score(estimator=clf, X=X_selected, y=y, cv=n_folds, scoring=scoring)
     if agg_scores == 'mean':
         agged_scores = np.mean(cv_scores)
     elif agg_scores == 'median':
@@ -67,6 +73,6 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
     elif model == 'hist':
         best_clf = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
                                                   random_state=5, loss="auto", scoring="Logloss", **clf.best_params_)
-    best_clf.fit(X, y)
+    best_clf.fit(X_selected, y)
     return agged_scores, best_clf
 

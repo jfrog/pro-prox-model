@@ -85,6 +85,14 @@
         default: datum://017dd2ff-f98b-c644-3b78-93e5ee58ef7d
       - name: hist_pr_auc
         default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
+      - name: rf_columns
+        default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
+      - name: lgb_columns
+        default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
+      - name: cbc_columns
+        default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
+     - name: hist_columns
+       default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
 
 - step:
     name: predict_explain
@@ -96,6 +104,8 @@
       - name: loaded_data
         default: datum://017dd268-1f23-ae96-9e5c-5135e77084b5
       - name: top_model
+        default: datum://017dd31b-b6a3-b444-4495-6181d05903ac
+      - name: top_model_cols
         default: datum://017dd31b-b6a3-b444-4495-6181d05903ac
 
 - step:
@@ -154,12 +164,16 @@
           inputs:
             - name: rf
             - name: rf_pr_auc
+            - name: rf_columns
             - name: lgb
             - name: lgb_pr_auc
+            - name: lgb_columns
             - name: cbc
             - name: cbc_pr_auc
+            - name: cbc_columns
             - name: hist
             - name: hist_pr_auc
+            - name: hist_columns
       - name: predict_explain
         type: execution
         step: predict_explain
@@ -167,6 +181,7 @@
           inputs:
             - name: loaded_data
             - name: top_model
+            - name: top_model_cols
       - name: upload_to_s3
         type: execution
         step: upload_to_s3
@@ -187,6 +202,11 @@
       - [fit_lgb.output.*.json, choose_best_model.inputs.lgb_pr_auc]
       - [fit_cbc.output.*.json, choose_best_model.inputs.cbc_pr_auc]
       - [fit_hist.output.*.json, choose_best_model.inputs.hist_pr_auc]
+      - [fit_rf.output.*.json, choose_best_model.inputs.rf_columns]
+      - [fit_lgb.output.*.json, choose_best_model.inputs.lgb_columns]
+      - [fit_cbc.output.*.json, choose_best_model.inputs.cbc_columns]
+      - [fit_hist.output.*.json, choose_best_model.inputs.hist_columns]
       - [choose_best_model.output.*.sav, predict_explain.inputs.top_model]
+      - [choose_best_model.output.*.sav, predict_explain.inputs.top_model_cols]
       - [load_data_test.output.*.csv, predict_explain.inputs.loaded_data]
       - [predict_explain.output.*.csv, upload_to_s3.inputs.final_prediction]
