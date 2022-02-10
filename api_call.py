@@ -26,7 +26,7 @@ resp = requests.request(
                 "source_node": "process_train",
                 "source_key": "*.csv",
                 "source_type": "output",
-                "target_node": "fit_etc",
+                "target_node": "fit_lgb",
                 "target_type": "input",
                 "target_key": "processed_data"
             },
@@ -55,12 +55,12 @@ resp = requests.request(
                 "target_key": "rf"
             },
             {
-                "source_node": "fit_etc",
+                "source_node": "fit_lgb",
                 "source_key": "*.sav",
                 "source_type": "output",
                 "target_node": "choose_best_model",
                 "target_type": "input",
-                "target_key": "etc"
+                "target_key": "lgb"
             },
             {
                 "source_node": "fit_cbc",
@@ -87,12 +87,12 @@ resp = requests.request(
                 "target_key": "rf_pr_auc"
             },
             {
-                "source_node": "fit_etc",
+                "source_node": "fit_lgb",
                 "source_key": "*.json",
                 "source_type": "output",
                 "target_node": "choose_best_model",
                 "target_type": "input",
-                "target_key": "etc_pr_auc"
+                "target_key": "lgb_pr_auc"
             },
             {
                 "source_node": "fit_cbc",
@@ -209,14 +209,14 @@ resp = requests.request(
                 }
             },
             {
-                "name": "fit_etc",
+                "name": "fit_lgb",
                 "type": "execution",
                 "template": {
                     "environment": "01742a18-07ca-75b6-1a1f-f8cc93b058a0",
                     "commit": "prod",
-                    "step": "fit_etc",
+                    "step": "fit_lgb",
                     "image": "yotamljfrog/proprox:0.1",
-                    "command": "pip install -r requirements.txt\npython -c 'import prod_valohai; prod_valohai.fit_evaluate(\"etc\")'",
+                    "command": "pip install -r requirements.txt\npython -c 'import prod_valohai; prod_valohai.fit_evaluate(\"lgb\")'",
                     "inputs": {
                         "processed_data": []
                     },
@@ -277,8 +277,8 @@ resp = requests.request(
                     "inputs": {
                         "rf": [],
                         "rf_pr_auc": [],
-                        "etc": [],
-                        "etc_pr_auc": [],
+                        "lgb": [],
+                        "lgb_pr_auc": [],
                         "cbc": [],
                         "cbc_pr_auc": [],
                         "hist": [],

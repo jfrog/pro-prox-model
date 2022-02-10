@@ -396,3 +396,11 @@ def plot_clusters(df_, features, min_members_in_group=1, is_dbscan=False):
     lines, labels = plt.thetagrids(np.degrees(label_loc), labels=categories)
     plt.legend(loc='lower right')
     plt.show()
+
+
+def color_mapping():
+    mapping = {'total': 'tab:blue',
+               'high': 'tab:green',
+               'medium': 'tab:orange',
+               'low': 'tab:red'}
+    return mapping

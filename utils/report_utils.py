@@ -103,16 +103,17 @@ def binning_features(X_test):
             X_test_disc.at[~pd.isnull(X_test_disc[col]), col] = disc.fit_transform(np.array(X_test_disc[col]).reshape(-1, 1))
         X_test_disc = X_test_disc.replace({col: disc_mapping})
 
-    company_age_mapping = {'(0.0)': '(very young)', '(1.0)': '(young)', '(2.0)': '(mature)', '(3.0)': '(old)', '(4.0)': '(very old)'}
-    disc = KBinsDiscretizer(n_bins=5, encode='ordinal', strategy='quantile')
-    not_missing_inds = X_test_disc.index[X_test_disc.company_age != -1].tolist()
-    X_test_disc.at[not_missing_inds, 'company_age'] = \
-        X_test_disc.loc[not_missing_inds, 'company_age'].astype(str) + ' (' + \
-        pd.Series(disc.fit_transform(np.array(X_test_disc.loc[not_missing_inds, 'company_age']).reshape(-1, 1)).reshape(-1),
-                  index=not_missing_inds).astype(str) + ')'
-    for key in company_age_mapping.keys():
-        X_test_disc.at[not_missing_inds, 'company_age'] = X_test_disc.loc[not_missing_inds, 'company_age'] \
-            .apply(lambda x: re.sub(re.escape(key), company_age_mapping[key], x))
-    X_test_disc.at[X_test_disc.company_age == -1, 'company_age'] = 'unknown'
+    if 'company_age' in list(X_test.columns):
+        company_age_mapping = {'(0.0)': '(very young)', '(1.0)': '(young)', '(2.0)': '(mature)', '(3.0)': '(old)', '(4.0)': '(very old)'}
+        disc = KBinsDiscretizer(n_bins=5, encode='ordinal', strategy='quantile')
+        not_missing_inds = X_test_disc.index[X_test_disc.company_age != -1].tolist()
+        X_test_disc.at[not_missing_inds, 'company_age'] = \
+            X_test_disc.loc[not_missing_inds, 'company_age'].astype(str) + ' (' + \
+            pd.Series(disc.fit_transform(np.array(X_test_disc.loc[not_missing_inds, 'company_age']).reshape(-1, 1)).reshape(-1),
+                      index=not_missing_inds).astype(str) + ')'
+        for key in company_age_mapping.keys():
+            X_test_disc.at[not_missing_inds, 'company_age'] = X_test_disc.loc[not_missing_inds, 'company_age'] \
+                .apply(lambda x: re.sub(re.escape(key), company_age_mapping[key], x))
+        X_test_disc.at[X_test_disc.company_age == -1, 'company_age'] = 'unknown'
     return X_test_disc
 
