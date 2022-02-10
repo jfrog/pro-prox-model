@@ -65,7 +65,7 @@ def choose_best_model():
     max_pr_auc = np.max(scores)
     top_model = models[np.argmax(scores)]
 
-    x_cols = pickle.load(open('/valohai/inputs/' + str(top_model) + '_columns' + '/' + str(top_model) + '_columns' + '.sav', 'rb'))
+    x_cols = pickle.load(open('/valohai/inputs/' + f'{top_model=}'.split('=')[0] + '_columns' + '/' + f'{top_model=}'.split('=')[0] + '_columns' + '.sav', 'rb'))
     print("Top model is: " + str(top_model) + " with pr_auc of: " + str(max_pr_auc))
     pickle.dump(top_model, open('/valohai/outputs/' + 'top_model.sav', 'wb'))
     pickle.dump(x_cols, open('/valohai/outputs/' + 'top_model_cols.sav', 'wb'))
