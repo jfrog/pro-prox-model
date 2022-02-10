@@ -38,7 +38,7 @@ def fit_evaluate(model, n_folds=5, feature_selection=True, n_features_to_keep=50
                     or 'class' in col or 'has_won' in col]
     X, y = df_train.drop(cols_to_drop, axis=1).fillna(-1), df_train['class']
     score, clf = cv_evaluation(model=model, X=X, y=y, n_folds=n_folds, scoring='average_precision', n_iter=20)
-    if feature_selection & model != 'hist':
+    if (feature_selection) & (model != 'hist'):
         feature_importance = Evaluation().plot_cv_precision_recall(clf=clf, n_folds=n_folds, n_repeats=1, X=X, y=y)
         feature_importance['average_importance'] = feature_importance[[f'fold_{fold_n + 1}' for fold_n in range(n_folds)]].mean(axis=1)
         features_to_keep = feature_importance.sort_values(by='average_importance', ascending=False).head(n_features_to_keep)['feature']
