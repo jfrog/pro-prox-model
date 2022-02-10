@@ -1,173 +1,135 @@
 - step:
-    name: load_data_fit
+    name: load_data_train
     image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.load_data("fit.sql")'
+      - python -c 'import prod_valohai; prod_valohai.load_data("fit.sql")'
 
 - step:
-    name: consolidate_opps
+    name: load_data_test
     image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.consolidate_opps()'
-    inputs:
-      - name: loaded_data
-        default: datum://017c6909-3bed-8508-0960-0c1b94513422
+      - python -c 'import prod_valohai; prod_valohai.load_data("predict.sql")'
 
 - step:
-    name: process_df
+    name: process_train
     image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.process_df()'
+      - python -c 'import prod_valohai; prod_valohai.process_train()'
     inputs:
       - name: loaded_data
-        default: datum://017c69ed-31ca-9475-1fb1-c5df4e1ccd7c
+        default: datum://017dd268-d1e1-c83b-869d-2c22ec1d0ac2
 
 - step:
     name: fit_rf
     image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.fit("rf")'
+      - python -c 'import prod_valohai; prod_valohai.fit_evaluate("rf")'
     inputs:
       - name: processed_data
-        default: datum://017c692b-97f1-e890-9eef-7aeaf5e9e393
+        default: datum://017dd272-6fc1-4f37-a844-339711cfccdb
 
 - step:
-    name: fit_etc
+    name: fit_lgb
     image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.fit("etc")'
+      - python -c 'import prod_valohai; prod_valohai.fit_evaluate("lgb")'
     inputs:
       - name: processed_data
-        default: datum://017c692b-97f1-e890-9eef-7aeaf5e9e393
+        default: datum://017dd272-6fc1-4f37-a844-339711cfccdb
 
 - step:
     name: fit_cbc
     image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.fit("cbc")'
+      - python -c 'import prod_valohai; prod_valohai.fit_evaluate("cbc")'
     inputs:
       - name: processed_data
-        default: datum://017c692b-97f1-e890-9eef-7aeaf5e9e393
+        default: datum://017dd272-6fc1-4f37-a844-339711cfccdb
 
 - step:
     name: fit_hist
     image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.fit("hist")'
+      - python -c 'import prod_valohai; prod_valohai.fit_evaluate("hist")'
     inputs:
       - name: processed_data
-        default: datum://017c692b-97f1-e890-9eef-7aeaf5e9e393
+        default: datum://017dd272-6fc1-4f37-a844-339711cfccdb
 
 - step:
-    name: choose
+    name: choose_best_model
     image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.choose()'
+      - python -c 'import prod_valohai; prod_valohai.choose_best_model()'
     inputs:
       - name: rf
-        default: datum://017c69cc-33bc-d215-90a7-0706e022fe10
-      - name: etc
-        default: datum://017c69b5-9db9-6522-c559-cbb83ac85829
+        default: datum://017dd2ed-8c7a-652c-d21d-6f02befe309f
+      - name: lgb
+        default: datum://017e6c48-8215-12c7-ec3f-fbf1d119e0c7
       - name: cbc
-        default: datum://017c69b4-1b15-5577-e3c4-e1731c52f8d8
+        default: datum://017dd2ff-f88d-914e-fea8-b9b24d48a9bd
       - name: hist
-        default: datum://017c69b4-1b15-5577-e3c4-e1731c52f8d8
+        default: datum://017dd2ea-67e6-18b2-faf0-b6df35bae8b1
       - name: rf_pr_auc
-        default: datum://017c69cc-3485-05b7-47cb-a40a44378343
-      - name: etc_pr_auc
-        default: datum://017c69b5-9e86-10cb-7123-b562e7598c00
+        default: datum://017dd2ed-8db9-3da7-fd13-5088557a0f61
+      - name: lgb_pr_auc
+        default: datum://017e6c48-8315-2320-756a-e80ac0aa4d83
       - name: cbc_pr_auc
-        default: datum://017c69b4-1bfd-b98a-9298-2e59da6c8129
+        default: datum://017dd2ff-f98b-c644-3b78-93e5ee58ef7d
       - name: hist_pr_auc
-        default: datum://017c69b4-1bfd-b98a-9298-2e59da6c8129
+        default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
+      - name: rf_columns
+        default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
+      - name: lgb_columns
+        default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
+      - name: cbc_columns
+        default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
+     - name: hist_columns
+       default: datum://017dd2ea-68c7-dcb9-1777-da4b9d90fb7a
 
 - step:
-    name: load_data_predict
+    name: predict_explain
     image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.load_data("predict.sql")'
-
-- step:
-    name: ready_data_for_bars
-    image: yotamljfrog/proprox:0.1
-    command:
-      - pip install -r requirements.txt
-      - python -c 'import main; main.ready_data_for_bars()'
+      - python -c 'import prod_valohai; prod_valohai.predict_explain()'
     inputs:
-      - name: data_for_bars
-        default: datum://017c6909-3bed-8508-0960-0c1b94513422
-
-- step:
-    name: make_bars
-    image: yotamljfrog/proprox:0.1
-    command:
-      - pip install -r requirements.txt
-      - python -c 'import main; main.make_bars()'
-    inputs:
-      - name: processed_data
-        default: datum://017c6909-3bed-8508-0960-0c1b94513422
-
-- step:
-    name: predict
-    image: yotamljfrog/proprox:0.1
-    command:
-      - pip install -r requirements.txt
-      - python -c 'import main; main.predict()'
-    inputs:
-      - name: low_bar_for_predict
-        default: datum://017aba21-6c05-82f7-1096-95743c267abc
-      - name: high_bar_for_predict
-        default: datum://017aba21-697e-f1ce-36df-53bbd558066e
-      - name: processed_data
-        default: datum://017a8050-2eb8-27d1-dee1-9ba7bda9f069
+      - name: loaded_data
+        default: datum://017dd268-1f23-ae96-9e5c-5135e77084b5
       - name: top_model
-        default: datum://017a8050-2eb8-27d1-dee1-9ba7bda9f069
-
+        default: datum://017dd31b-b6a3-b444-4495-6181d05903ac
+      - name: top_model_cols
+        default: datum://017dd31b-b6a3-b444-4495-6181d05903ac
 
 - step:
     name: upload_to_s3
     image: yotamljfrog/proprox:0.1
     command:
       - pip install -r requirements.txt
-      - python -c 'import main; main.upload_to_s3()'
+      - python -c 'import prod_valohai; prod_valohai.upload_to_s3()'
     inputs:
       - name: final_prediction
-        default: datum://017c7ede-e2bc-6153-99c6-e5184c4172f1
-
+        default: datum://017dd6be-f0ad-3f17-fd00-c5277d2dfab9
 
 - pipeline:
-    name: fit_and_predict
+    name: pro_to_prox_first_pipeline
     nodes:
-      - name: load_data_fit
+      - name: load_data_train
         type: execution
-        step: load_data_fit
-      - name: load_data_predict
+        step: load_data_train
+      - name: load_data_test
         type: execution
-        step: load_data_predict
-      - name: consolidate_opps
+        step: load_data_test
+      - name: process_train
         type: execution
-        step: consolidate_opps
-        override:
-          inputs:
-            - name: loaded_data
-      - name: process_df_fit
-        type: execution
-        step: process_df
-        override:
-          inputs:
-            - name: loaded_data
-      - name: process_df_predict
-        type: execution
-        step: process_df
+        step: process_train
         override:
           inputs:
             - name: loaded_data
@@ -177,9 +139,9 @@
         override:
           inputs:
             - name: processed_data
-      - name: fit_etc
+      - name: fit_lgb
         type: execution
-        step: fit_etc
+        step: fit_lgb
         override:
           inputs:
             - name: processed_data
@@ -195,34 +157,31 @@
         override:
           inputs:
             - name: processed_data
-      - name: choose
+      - name: choose_best_model
         type: execution
-        step: choose
+        step: choose_best_model
         override:
           inputs:
             - name: rf
             - name: rf_pr_auc
-            - name: etc
-            - name: etc_pr_auc
+            - name: rf_columns
+            - name: lgb
+            - name: lgb_pr_auc
+            - name: lgb_columns
             - name: cbc
             - name: cbc_pr_auc
+            - name: cbc_columns
             - name: hist
             - name: hist_pr_auc
-      - name: make_bars
+            - name: hist_columns
+      - name: predict_explain
         type: execution
-        step: make_bars
+        step: predict_explain
         override:
           inputs:
-            - name: processed_data
-      - name: predict
-        type: execution
-        step: predict
-        override:
-          inputs:
-            - name: processed_data
-            - name: low_bar_for_predict
-            - name: high_bar_for_predict
+            - name: loaded_data
             - name: top_model
+            - name: top_model_cols
       - name: upload_to_s3
         type: execution
         step: upload_to_s3
@@ -230,25 +189,24 @@
           inputs:
             - name: final_prediction
     edges:
-      - [load_data_fit.output.*.csv, consolidate_opps.inputs.loaded_data]
-      - [consolidate_opps.output.*.csv, process_df_fit.inputs.loaded_data]
-      - [process_df_fit.output.*.csv, fit_rf.inputs.processed_data]
-      - [process_df_fit.output.*.csv, fit_etc.inputs.processed_data]
-      - [process_df_fit.output.*.csv, fit_cbc.inputs.processed_data]
-      - [process_df_fit.output.*.csv, fit_hist.inputs.processed_data]
-#      - [process_df_fit.output.*.csv, ready_data_for_bars.inputs.data_for_bars]
-      - [process_df_fit.output.*.csv, make_bars.inputs.processed_data]
-      - [fit_rf.output.*.sav, choose.inputs.rf]
-      - [fit_etc.output.*.sav, choose.inputs.etc]
-      - [fit_cbc.output.*.sav, choose.inputs.cbc]
-      - [fit_hist.output.*.sav, choose.inputs.hist]
-      - [fit_rf.output.*.json, choose.inputs.rf_pr_auc]
-      - [fit_etc.output.*.json, choose.inputs.etc_pr_auc]
-      - [fit_cbc.output.*.json, choose.inputs.cbc_pr_auc]
-      - [fit_hist.output.*.json, choose.inputs.hist_pr_auc]
-      - [choose.output.*.sav, predict.inputs.top_model]
-      - [make_bars.output.low_bar_for_predict.csv, predict.inputs.low_bar_for_predict]
-      - [make_bars.output.high_bar_for_predict.csv, predict.inputs.high_bar_for_predict]
-      - [load_data_predict.output.*.csv, process_df_predict.inputs.loaded_data]
-      - [process_df_predict.output.*.csv, predict.inputs.processed_data]
-      - [predict.output.*.csv, upload_to_s3.inputs.final_prediction]
+      - [load_data_train.output.*.csv, process_train.inputs.loaded_data]
+      - [process_train.output.*.csv, fit_rf.inputs.processed_data]
+      - [process_train.output.*.csv, fit_lgb.inputs.processed_data]
+      - [process_train.output.*.csv, fit_cbc.inputs.processed_data]
+      - [process_train.output.*.csv, fit_hist.inputs.processed_data]
+      - [fit_rf.output.*.sav, choose_best_model.inputs.rf]
+      - [fit_lgb.output.*.sav, choose_best_model.inputs.lgb]
+      - [fit_cbc.output.*.sav, choose_best_model.inputs.cbc]
+      - [fit_hist.output.*.sav, choose_best_model.inputs.hist]
+      - [fit_rf.output.*.json, choose_best_model.inputs.rf_pr_auc]
+      - [fit_lgb.output.*.json, choose_best_model.inputs.lgb_pr_auc]
+      - [fit_cbc.output.*.json, choose_best_model.inputs.cbc_pr_auc]
+      - [fit_hist.output.*.json, choose_best_model.inputs.hist_pr_auc]
+      - [fit_rf.output.*.json, choose_best_model.inputs.rf_columns]
+      - [fit_lgb.output.*.json, choose_best_model.inputs.lgb_columns]
+      - [fit_cbc.output.*.json, choose_best_model.inputs.cbc_columns]
+      - [fit_hist.output.*.json, choose_best_model.inputs.hist_columns]
+      - [choose_best_model.output.*.sav, predict_explain.inputs.top_model]
+      - [choose_best_model.output.*.sav, predict_explain.inputs.top_model_cols]
+      - [load_data_test.output.*.csv, predict_explain.inputs.loaded_data]
+      - [predict_explain.output.*.csv, upload_to_s3.inputs.final_prediction]
