@@ -74,8 +74,7 @@ def choose_best_model():
 
 
 def predict_explain():
-    x_cols = pickle.load(open('/valohai/inputs/top_model/top_model_cols.sav', 'rb'))
-    ##columns = pickle.load(open('/valohai/inputs/top_model/top_model.sav', 'rb'))
+    x_cols = pickle.load(open('/valohai/inputs/top_model_cols/top_model_cols.sav', 'rb'))
     df_test = pd.read_csv('/valohai/inputs/loaded_data/predict.csv', sep=';')
     df_test = pro_upsell_preprocess(df_test.copy())
     cols_to_drop = [col for col in df_test.columns if
