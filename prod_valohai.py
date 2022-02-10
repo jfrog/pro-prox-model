@@ -56,16 +56,18 @@ def fit_evaluate(model, n_folds=5, feature_selection=True, n_features_to_keep=50
 
 def choose_best_model():
     rf, rf_pr_auc = load_score_and_model('rf')
-    etc, etc_pr_auc = load_score_and_model('lgb')
+    lgb, lgb_pr_auc = load_score_and_model('lgb')
     cbc, cbc_pr_auc = load_score_and_model('cbc')
     hist, hist_pr_auc = load_score_and_model('hist')
 
-    scores = [rf_pr_auc, etc_pr_auc, cbc_pr_auc, hist_pr_auc]
-    models = [rf, etc, cbc, hist]
+    scores = [rf_pr_auc, lgb_pr_auc, cbc_pr_auc, hist_pr_auc]
+    models = [rf, lgb, cbc, hist]
+    model_names = ['rf', 'lgb', 'cbc', 'hist']
     max_pr_auc = np.max(scores)
     top_model = models[np.argmax(scores)]
+    top_model_name = model_names[np.argmax(scores)]
 
-    x_cols = pickle.load(open('/valohai/inputs/' + f'{top_model=}'.split('=')[0] + '_columns' + '/' + f'{top_model=}'.split('=')[0] + '_columns' + '.sav', 'rb'))
+    x_cols = pickle.load(open('/valohai/inputs/' + top_model_name + '_columns' + '/' + top_model_name + '_columns' + '.sav', 'rb'))
     print("Top model is: " + str(top_model) + " with pr_auc of: " + str(max_pr_auc))
     pickle.dump(top_model, open('/valohai/outputs/' + 'top_model.sav', 'wb'))
     pickle.dump(x_cols, open('/valohai/outputs/' + 'top_model_cols.sav', 'wb'))
