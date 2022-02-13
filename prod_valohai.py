@@ -60,9 +60,10 @@ def choose_best_model():
     cbc, cbc_pr_auc = load_score_and_model('cbc')
     hist, hist_pr_auc = load_score_and_model('hist')
 
-    scores = [rf_pr_auc, lgb_pr_auc, cbc_pr_auc, hist_pr_auc]
-    models = [rf, lgb, cbc, hist]
-    model_names = ['rf', 'lgb', 'cbc', 'hist']
+    # at the moment ignore hist since it doesn't support feature importance
+    scores = [rf_pr_auc, lgb_pr_auc, cbc_pr_auc]
+    models = [rf, lgb, cbc]
+    model_names = ['rf', 'lgb', 'cbc']
     max_pr_auc = np.max(scores)
     top_model = models[np.argmax(scores)]
     top_model_name = model_names[np.argmax(scores)]
