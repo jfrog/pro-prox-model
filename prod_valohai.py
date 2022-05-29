@@ -88,8 +88,10 @@ def predict_explain():
     res_df = pd.DataFrame()
     res_df['account_id'] = df_test['account_id']
     res_df['prob'] = top_model.predict_proba(X_test)[:, 1]
-    threshold_to_high = res_df['prob'].quantile(0.85)
-    threshold_to_medium = res_df['prob'].quantile(0.7)
+    threshold_to_high = 0.6
+    threshold_to_medium = 0.5
+    #threshold_to_high = res_df['prob'].quantile(0.85)
+    #threshold_to_medium = res_df['prob'].quantile(0.7)
     res_df['rating'] = np.where(res_df['prob'] < threshold_to_high,
                                 np.where(res_df['prob'] < threshold_to_medium, 'low', 'medium'), 'high')
     X_test_disc = binning_features(X_test.copy())
