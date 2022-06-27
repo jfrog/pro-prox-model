@@ -47,8 +47,7 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
                   'learning_rate': stats.uniform(0.01, 0.3),
                   'max_depth': stats.randint(3, 10),
                   'min_samples_leaf': stats.randint(1, 30)}
-        est = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
-                                             random_state=5, loss="auto", scoring="Logloss")
+        est = HistGradientBoostingClassifier(verbose=0, random_state=5, loss="auto", scoring="Logloss")
 
     if model in ['hist', 'rf', 'lgb']:
         X = X.select_dtypes(include=np.number)
@@ -66,8 +65,6 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
     if model == 'cbc':
         est = CatBoostClassifier(cat_features=get_cat_feature_names(X_selected), auto_class_weights="Balanced", random_state=5,
                                  rsm=0.1, verbose=0, loss_function=FocalLossObjective(), eval_metric="Logloss")
-    elif model == 'lgb':
-        est = LGBMClassifier(class_weight='balanced', random_state=5)
 
     clf = RandomizedSearchCV(estimator=est, param_distributions=params,
                              scoring=scoring, refit=True, random_state=5, cv=n_folds, n_iter=n_iter,
