@@ -653,8 +653,7 @@ GROUP BY 1,
          2,
          3;
 
--- select * from #upsell_acounts where account_id='0012000000ol9la'
--- select class, case when count_prox > 0 then 1 else 0 end as morethen0prox, count(*) from #contracts group by 1,2
+
  -------------
 --QOE
 -------------
@@ -669,261 +668,79 @@ WHERE create_date_monthly = relevant_date
   AND is_fictive = 0;
 
 -------------
---Xray
+--Zoom-info
 -------------
--- DROP TABLE IF EXISTS #xray;
- -- SELECT ab.account_id,
---       ab.relevant_date,
---       CASE
---           WHEN date_trunc('day',date) BETWEEN add_months(date_trunc('day', ab.relevant_date), -1) AND date_trunc('day', ab.relevant_date) THEN '3 Months'
---           WHEN date_trunc('day',date) BETWEEN add_months(date_trunc('day', ab.relevant_date), -4) AND add_months(date_trunc('day', ab.relevant_date), -3) THEN '4 Months'
---           WHEN date_trunc('day',date) BETWEEN add_months(date_trunc('day', ab.relevant_date), -7) AND add_months(date_trunc('day', ab.relevant_date), -6) THEN '5 Months'
---           WHEN date_trunc('day',date) BETWEEN add_months(date_trunc('day', ab.relevant_date), -2) AND add_months(date_trunc('day', ab.relevant_date), -1) THEN '6 Months'
---           WHEN date_trunc('day',date) BETWEEN add_months(date_trunc('day', ab.relevant_date), -3) AND add_months(date_trunc('day', ab.relevant_date), -2) THEN '7 Months'
---       END AS period_range,
---       avg(indexed_repositories_count) AS indexed_repos INTO #xray
--- FROM #base_accounts AS ab
--- LEFT JOIN xray.dim_xray_onprem AS a ON ab.account_id = a.account_id
--- JOIN xray.mongo_attributes AS b ON a.product_id = b.environment_license_id
--- JOIN xray.fact_indexed_resources AS c ON b._id = c._id
--- WHERE period_range IS NOT NULL
--- GROUP BY 1,
---         2,
---         3;
- -- DROP TABLE IF EXISTS #indexed_repos_over_time;
- -- SELECT ab.account_id,
---       ab.relevant_date,
---       ab.class, date, sum(indexed_repositories_count) AS indexed_repos INTO #indexed_repos_over_time
--- FROM #base_accounts AS ab
--- LEFT JOIN xray.dim_xray_onprem AS a ON ab.account_id = a.account_id
--- JOIN xray.mongo_attributes AS b ON a.product_id = b.environment_license_id
--- JOIN xray.fact_indexed_resources AS c ON b._id = c._id
--- WHERE date <= relevant_date
--- GROUP BY 1,
---         2,
---         3,
---         4;
- -- DROP TABLE IF EXISTS #days_from_indexed_repos;
- -- SELECT a.account_id,
---       a.relevant_date,
---       a.class,
---       datediff('day', max(date), a.relevant_date) AS days_from_indexed_repos_change INTO #days_from_indexed_repos
--- FROM #indexed_repos_over_time AS a
--- JOIN
---   (SELECT account_id,
---           relevant_date,
---           indexed_repos AS curr_indexed_repos
---   FROM
---     (SELECT account_id,
---             relevant_date, date, indexed_repos,
---                                   row_number() OVER (PARTITION BY a.account_id,
---                                                                   a.relevant_date
---                                                     ORDER BY date DESC) AS rn
---       FROM #indexed_repos_over_time AS a)
---   WHERE rn = 1) AS b ON a.account_id = b.account_id
--- AND a.relevant_date = b.relevant_date
--- WHERE indexed_repos != curr_indexed_repos
--- GROUP BY 1,
---         2,
---         3;
- -- DROP TABLE IF EXISTS #days_from_xray;
- -- SELECT a.account_id,
---       relevant_date,
---       CLASS,
---       max(b.date) AS last_xray_date,
---       datediff('day', last_xray_date, relevant_date) AS days_from_last_xray INTO #days_from_xray
--- FROM #base_accounts AS a
--- LEFT JOIN
---   (SELECT account_id,
---           c.date
---   FROM xray.dim_xray_onprem AS a
---   JOIN xray.mongo_attributes AS b ON a.product_id = b.environment_license_id
---   JOIN xray.fact_totals AS c ON b._id = c._id) AS b ON a.account_id = b.account_id
--- WHERE date <= relevant_date
--- GROUP BY 1,
---         2,
---         3;
- -- DROP TABLE IF EXISTS #xray_policies;
- -- SELECT ab.account_id,
---       ab.relevant_date,
---       CASE
---           WHEN avg(assigned_policies_count) > 0 THEN 1
---           ELSE 0
---       END AS is_policies,
---       sum(CASE
---               WHEN policy_type = 'security'
---                     AND assigned_policies_count > 0 THEN 1
---               ELSE 0
---           END) AS total_security_policies INTO #xray_policies
--- FROM #base_accounts AS ab
--- LEFT JOIN xray.dim_xray_onprem AS a ON ab.account_id = a.account_id
--- JOIN xray.mongo_attributes AS b ON a.product_id = b.environment_license_id
--- JOIN xray.fact_policies AS c ON b._id = c._id
--- WHERE datediff('day', c.date, ab.relevant_date) <= 90
---   AND datediff('day', c.date, ab.relevant_date) >= 0
--- GROUP BY 1,
---         2;
- -- DROP TABLE IF EXISTS #xray_watches;
- -- SELECT ab.account_id,
---       ab.relevant_date,
---       CASE
---           WHEN avg(watches_count) > 0 THEN 1
---           ELSE 0
---       END AS is_watches INTO #xray_watches
--- FROM #base_accounts AS ab
--- LEFT JOIN xray.dim_xray_onprem AS a ON ab.account_id = a.account_id
--- JOIN xray.mongo_attributes AS b ON a.product_id = b.environment_license_id
--- JOIN xray.fact_watches AS c ON b._id = c._id
--- WHERE datediff('day', c.date, ab.relevant_date) <= 90
---   AND datediff('day', c.date, ab.relevant_date) >= 0
--- GROUP BY 1,
---         2;
- -- DROP TABLE IF EXISTS #xray_system_massage;
- -- SELECT ab.account_id,
---       ab.relevant_date,
---       CASE
---           WHEN sum(CASE
---                         WHEN system_messages_count > 0 THEN 1
---                         ELSE 0
---                     END) > 0 THEN 1
---           ELSE 0
---       END AS is_system_message INTO #xray_system_massage
--- FROM #base_accounts AS ab
--- LEFT JOIN xray.dim_xray_onprem AS a ON ab.account_id = a.account_id
--- JOIN xray.mongo_attributes AS b ON a.product_id = b.environment_license_id
--- JOIN xray.fact_system_health AS c ON b._id = c._id
--- WHERE datediff('day', c.date, ab.relevant_date) <= 90
---   AND datediff('day', c.date, ab.relevant_date) >= 0
--- GROUP BY 1,
---         2;
- -- DROP TABLE IF EXISTS #xray_totals;
- -- SELECT ab.account_id,
---       ab.relevant_date,
---       avg(total_artifactories_count) AS total_artifactories_count,
---       avg(total_components_count) AS total_components_count,
---       avg(total_root_components_count) AS total_root_components_count,
---       avg(total_indexed_builds_count) AS total_indexed_builds_count,
---       avg(total_policies_count) AS total_policies_count,
---       avg(total_violations_count) AS total_violations_count,
---       avg(total_watches_count) AS total_watches_count INTO #xray_totals
--- FROM #base_accounts AS ab
--- LEFT JOIN xray.dim_xray_onprem AS a ON ab.account_id = a.account_id
--- JOIN xray.mongo_attributes AS b ON a.product_id = b.environment_license_id
--- JOIN xray.fact_totals AS c ON b._id = c._id
--- WHERE datediff('day', c.date, ab.relevant_date) <= 90
---   AND datediff('day', c.date, ab.relevant_date) >= 0
--- GROUP BY 1,
---         2;
- -- DROP TABLE IF EXISTS #xray_totals_over_time;
- -- SELECT ab.account_id,
---       ab.relevant_date,
---       ab.class, date, sum(total_policies_count) AS total_policies_count,
---                       sum(total_violations_count) AS total_violations_count,
---                       sum(total_watches_count) AS total_watches_count INTO #xray_totals_over_time
--- FROM #base_accounts AS ab
--- LEFT JOIN xray.dim_xray_onprem AS a ON ab.account_id = a.account_id
--- JOIN xray.mongo_attributes AS b ON a.product_id = b.environment_license_id
--- JOIN xray.fact_totals AS c ON b._id = c._id
--- WHERE date <= relevant_date
--- GROUP BY 1,
---         2,
---         3,
---         4;
- -- DROP TABLE IF EXISTS #days_from_policies_count;
- -- SELECT a.account_id,
---       a.relevant_date,
---       a.class,
---       datediff('day', max(date), a.relevant_date) AS days_from_policies_change INTO #days_from_policies_count
--- FROM #xray_totals_over_time AS a
--- JOIN
---   (SELECT account_id,
---           relevant_date,
---           total_policies_count AS curr_total_policies_count
---   FROM
---     (SELECT account_id,
---             relevant_date, date, total_policies_count,
---                                   row_number() OVER (PARTITION BY a.account_id,
---                                                                   a.relevant_date
---                                                     ORDER BY date DESC) AS rn
---       FROM #xray_totals_over_time AS a)
---   WHERE rn = 1) AS b ON a.account_id = b.account_id
--- AND a.relevant_date = b.relevant_date
--- WHERE total_policies_count != curr_total_policies_count
--- GROUP BY 1,
---         2,
---         3;
- -- DROP TABLE IF EXISTS #days_from_violations_count;
- -- SELECT a.account_id,
---       a.relevant_date,
---       a.class,
---       datediff('day', max(date), a.relevant_date) AS days_from_violations_change INTO #days_from_violations_count
--- FROM #xray_totals_over_time AS a
--- JOIN
---   (SELECT account_id,
---           relevant_date,
---           total_violations_count AS curr_total_violations_count
---   FROM
---     (SELECT account_id,
---             relevant_date, date, total_violations_count,
---                                   row_number() OVER (PARTITION BY a.account_id,
---                                                                   a.relevant_date
---                                                     ORDER BY date DESC) AS rn
---       FROM #xray_totals_over_time AS a)
---   WHERE rn = 1) AS b ON a.account_id = b.account_id
--- AND a.relevant_date = b.relevant_date
--- WHERE total_violations_count != curr_total_violations_count
--- GROUP BY 1,
---         2,
---         3;
- -- DROP TABLE IF EXISTS #days_from_watches_count;
- -- SELECT a.account_id,
---       a.relevant_date,
---       a.class,
---       datediff('day', max(date), a.relevant_date) AS days_from_watches_change INTO #days_from_watches_count
--- FROM #xray_totals_over_time AS a
--- JOIN
---   (SELECT account_id,
---           relevant_date,
---           total_watches_count AS curr_total_watches_count
---   FROM
---     (SELECT account_id,
---             relevant_date, date, total_watches_count,
---                                   row_number() OVER (PARTITION BY a.account_id,
---                                                                   a.relevant_date
---                                                     ORDER BY date DESC) AS rn
---       FROM #xray_totals_over_time AS a)
---   WHERE rn = 1) AS b ON a.account_id = b.account_id
--- AND a.relevant_date = b.relevant_date
--- WHERE total_watches_count != curr_total_watches_count
--- GROUP BY 1,
---         2,
---         3;
- -------------
---Clear Bit
--------------
-DROP TABLE IF EXISTS #cbit;
+drop table if exists #zoom_info_raw;
+select da.account_id,
+       dozisf__employee_range__c as total_employees_range,
+       dozisf__primary_industry__c as industry_group,
+       dozisf__company_type__c as company_type,
+       dozisf__revenue_range__c as revenue_range,
+       dozisf__founded_year__c as founded_year,
+       dozisf__contact__c,
+       case when lower(dozisf__job_title__c) like '%engineer%' or lower(dozisf__job_title__c) like '%developer%' or lower(dozisf__job_title__c) like '%software%'
+           then 1 else 0 end as is_developer,
+       case when lower(dozisf__job_title__c) like '%devops%' then 1 else 0 end as is_devops_engineer,
+       case when lower(dozisf__job_title__c) like '%engineer%' then 1 else 0 end as is_engineer
+into #zoom_info_raw
+from salesforce.zoominfo__c as zi
+join dims.dim_contacts dc on zi.dozisf__contact__c = dc.contact_id
+join dims.dim_accounts da ON da.account_id = dc.account_id
+where dozisf__contact__c <> '';
 
-SELECT da.account_id,
-       max(cbit__companycategoryindustrygroup__c) AS industry_group,
-       max(cbit__companyfoundedyear__c) AS founded_year,
-       max(cbit__companymetricsemployees__c) AS total_employees,
-       max(cbit__companymetricsemployeesrange__c) AS total_employees_range,
-       COUNT (DISTINCT cbit__email__c) AS total_employees_with_details,
-             count(DISTINCT CASE
-                                WHEN cbit__employmentsubrole__c IN ('software_engineer', 'web_engineer')
-                                     OR cbit__employmenttitle__c IN ('Software Developer', 'Java Developer', 'Software Engineer') THEN cbit__email__c
-                            END) AS developers,
-             count(DISTINCT CASE
-                                WHEN cbit__employmentsubrole__c = 'devops_engineer' THEN cbit__email__c
-                            END) AS devops_engineers,
-             count(DISTINCT CASE
-                                WHEN cbit__employmentsubrole__c like '%engineer%'
-                                     OR cbit__employmenttitle__c like '%engineer%' THEN id
-                            END) AS engineers INTO #cbit
-FROM salesforce.cbit__clearbit__c a
-INNER JOIN dims.dim_contacts dc ON dc.cbit__clearbit__c = a.id
-INNER JOIN dims.dim_accounts da ON da.account_id = dc.account_id
-GROUP BY 1;
+drop table if exists #zoom_info_agg;
+select roles.*,
+       total_employees_range, industry_group, company_type, revenue_range, founded_year
+into #zoom_info_agg
+from
+
+(SELECT account_id, total_employees_range
+FROM(SELECT account_id,total_employees_range,
+            RANK() OVER(PARTITION BY account_id ORDER BY COUNT(*) DESC) rnk
+     FROM #zoom_info_raw
+    group by 1,2)  AS s2
+WHERE rnk = 1) as e
+join
+(SELECT account_id, industry_group
+FROM(SELECT account_id,industry_group,
+            RANK() OVER(PARTITION BY account_id ORDER BY COUNT(*) DESC) rnk
+     FROM #zoom_info_raw
+    group by 1,2)  AS s2
+WHERE rnk = 1) as i
+on e.account_id = i.account_id
+join
+(SELECT account_id, company_type
+FROM(SELECT account_id,company_type,
+            RANK() OVER(PARTITION BY account_id ORDER BY COUNT(*) DESC) rnk
+     FROM #zoom_info_raw
+    group by 1,2)  AS s2
+WHERE rnk = 1) as ct
+on e.account_id = ct.account_id
+join
+(SELECT account_id, revenue_range
+FROM(SELECT account_id,revenue_range,
+            RANK() OVER(PARTITION BY account_id ORDER BY COUNT(*) DESC) rnk
+     FROM #zoom_info_raw
+    group by 1,2)  AS s2
+WHERE rnk = 1) as rr
+on e.account_id = rr.account_id
+join
+(SELECT account_id, founded_year
+FROM(SELECT account_id,founded_year,
+            RANK() OVER(PARTITION BY account_id ORDER BY COUNT(*) DESC) rnk
+     FROM #zoom_info_raw
+    group by 1,2)  AS s2
+WHERE rnk = 1) as fy
+on e.account_id = fy.account_id
+join
+(select account_id,
+        count(distinct dozisf__contact__c) as total_employees_with_details,
+        count(distinct case when is_developer = 1 then dozisf__contact__c end) as developers,
+        count(distinct case when is_devops_engineer = 1 then dozisf__contact__c end) as devops_engineers,
+        count(distinct case when is_engineer = 1 then dozisf__contact__c end) as engineers
+from #zoom_info_raw
+group by 1) as roles
+on e.account_id = roles.account_id;
 
 -------------------
 --Google Analytics
@@ -995,96 +812,84 @@ GROUP BY 1,
 ---------------------------------
 -- triggers
 ---------------------------------
-DROP TABLE IF EXISTS #triggers_cases;
+drop table if exists #triggers_cases;
+select ar.account_id, relevant_date,
+       count(distinct(case when term in ('high availability', 'high-availability',' ha') then instance_date::date end)) as n_ha_mentioned_cases,
+       count(distinct(case when term in ('balancer', 'balancing', 'balance') then instance_date::date end)) as n_bal_mentioned_cases,
+       count(distinct(case when term = 'enterprise' then instance_date::date end)) as n_ent_mentioned_cases,
+       count(distinct(case when term = 'multiple' then instance_date::date end)) as n_mul_mentioned_cases,
+       count(distinct(case when term = 'replications' then instance_date::date end)) as n_rep_mentioned_cases,
+       count(distinct(case when term in ('disaster recovery', 'downtime', ' dr', 'down time', 'bad performance') then instance_date::date end)) as n_bad_mentioned_cases
+into #triggers_cases
+from data_science.simple_intent_alltime as tc
+left join #base_accounts as ar
+on left(tc.account_id, 15) = ar.account_id
+where instance_date::date between ADD_MONTHS(relevant_date, -12) and relevant_date
+and type like 'email%'
+and instance_date <= current_date
+group by 1,2;
 
-SELECT a.account_id,
-       a.relevant_date,
-       count(distinct(CASE
-                          WHEN keyword IN ('high availability', 'high-availability', ' ha') THEN created_date
-                      END)) AS n_ha_mentioned_cases,
-       count(distinct(CASE
-                          WHEN keyword IN ('balancer', 'balancing', 'balance') THEN created_date
-                      END)) AS n_bal_mentioned_cases,
-       count(distinct(CASE
-                          WHEN keyword = 'enterprise' THEN created_date
-                      END)) AS n_ent_mentioned_cases,
-       count(distinct(CASE
-                          WHEN keyword = 'multiple' THEN created_date
-                      END)) AS n_mul_mentioned_cases,
-       count(distinct(CASE
-                          WHEN keyword = 'replications' THEN created_date
-                      END)) AS n_rep_mentioned_cases,
-       count(distinct(CASE
-                          WHEN keyword IN ('disaster recovery', 'downtime', ' dr', 'down time', 'bad performance') THEN created_date
-                      END)) AS n_bad_mentioned_cases INTO #triggers_cases
-FROM data_science.triggered_instances_cases AS tc
-JOIN #base_accounts AS a ON tc.account_id = a.account_id
-WHERE to_date(created_date, 'MM/DD/YYYY') BETWEEN add_months(relevant_date, -4) AND relevant_date
-GROUP BY 1,
-         2;
 
-DROP TABLE IF EXISTS #triggers_sessions;
-
-SELECT a.account_id,
-       relevant_date,
-       count(distinct(CASE
+drop table if exists #triggers_sessions;
+select ar.account_id, relevant_date,
+      count(distinct(CASE
                           WHEN term = 'high availability' THEN instance_date
                       END)) AS n_ha_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'enterprise' THEN instance_date
                       END)) AS n_ent_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'multiple' THEN instance_date
                       END)) AS n_mul_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'balance' THEN instance_date
                       END)) AS n_bal_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term IN ('disaster recovery', 'downtime', 'bad performance') THEN instance_date
                       END)) AS n_bad_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'replications' THEN instance_date
                       END)) AS n_rep_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'Budget' THEN instance_date
                       END)) AS n_budget_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'churn' THEN instance_date
                       END)) AS n_churn_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'Competitor' THEN instance_date
                       END)) AS n_competitor_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'compliance' THEN instance_date
                       END)) AS n_compliance_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'CVE' THEN instance_date
                       END)) AS n_cve_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'Cyber' THEN instance_date
                       END)) AS n_cyber_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'downsell' THEN instance_date
                       END)) AS n_downsell_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'Scanning' THEN instance_date
                       END)) AS n_scanning_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'SLA' THEN instance_date
                       END)) AS n_sla_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'support' THEN instance_date
                       END)) AS n_support_mentioned_sessions,
-       count(distinct(CASE
+      count(distinct(CASE
                           WHEN term = 'Xray' THEN instance_date
-                      END)) AS n_xray_mentioned_sessions INTO #triggers_sessions
-FROM #base_accounts AS a
-LEFT JOIN data_science.termtriggers_new_version AS b ON a.account_id = b.account_id
-WHERE TYPE IN ('session_Background',
-               'session_Session Summary')--type in ('task_Comments', 'task_Subject')
-AND to_date(instance_date, 'MM/DD/YYYY') BETWEEN add_months(relevant_date, -4) AND relevant_date
-GROUP BY 1,
-         2;
+                      END)) AS n_xray_mentioned_sessions
+into #triggers_sessions
+from data_science.simple_intent_alltime as tc
+left join #base_accounts as ar
+on left(tc.account_id, 15) = ar.account_id
+where instance_date::date between ADD_MONTHS(relevant_date, -12) and relevant_date
+and type like 'session%'
+group by 1,2;
 
 ---------------------------------
 -- tasks
@@ -1161,35 +966,41 @@ SELECT DISTINCT a.account_id,
                 c2.*,
                 c3.*,
                 c4.*,
-                c5.*, -- xr1.*,
- -- xr2.*,
- -- xr3.*,
- -- xr4.*,
- -- xr5.*,
- coalesce(n_contacts, 0) AS n_contacts,
- cr.*,
- coalesce(n_security_contacts, 0) AS n_security_contacts, -- coalesce(months_from_upgrade, -1) AS months_from_upgrade,
- coalesce(total_sessions_past_year, 0) AS n_sessions_last_year,
- coalesce(cases_within_last_year, 0) AS n_cases_last_year,
- coalesce(total_xray_sessions_past_year, 0) AS n_xray_sessions_last_year,
- coalesce(cases_within_3_last_months, 0) AS n_cases_last_3_months,
- coalesce(n_poor_cases, 0) AS n_poor_cases,
- cb.engineers,
- cb.devops_engineers,
- cb.developers,
- cb.total_employees_with_details,
+                c5.*,
+coalesce(n_contacts, 0) AS n_contacts,
+cr.*,
+coalesce(n_security_contacts, 0) AS n_security_contacts,
+coalesce(total_sessions_past_year, 0) AS n_sessions_last_year,
+coalesce(cases_within_last_year, 0) AS n_cases_last_year,
+coalesce(total_xray_sessions_past_year, 0) AS n_xray_sessions_last_year,
+coalesce(cases_within_3_last_months, 0) AS n_cases_last_3_months,
+coalesce(n_poor_cases, 0) AS n_poor_cases,
+coalesce(cb.engineers, -1) as engineers,
+coalesce(cb.devops_engineers, -1) as devops_engineers,
+coalesce(cb.developers, -1) as developers,
+coalesce(cb.total_employees_with_details, -1) as total_employees_with_details,
+CASE
+     WHEN cb.company_type = ''
+          OR cb.company_type IS NULL THEN 'unknown'
+     ELSE company_type end as company_type,
+CASE
+     WHEN cb.revenue_range = ''
+          OR cb.revenue_range IS NULL THEN 'unknown'
+     ELSE revenue_range end as revenue_range,
  CASE
      WHEN cb.industry_group = ''
           OR cb.industry_group IS NULL THEN 'unknown'
      ELSE industry_group
- END,
+ END as industry_group,
  CASE
      WHEN (total_employees_range = ''
            OR total_employees_range IS NULL) THEN 'unknown'
      ELSE total_employees_range
- END,
+ END as total_employees_range,
+case when cb.founded_year is null or cb.founded_year = '' then -1
+else
  extract(YEAR
-         FROM a.relevant_date) - cb.founded_year AS company_age,
+         FROM a.relevant_date) - cb.founded_year end AS company_age,
  coalesce(tra.n_training, 0) AS n_training,
  coalesce(qoe_score, -1) AS qoe_score,
  days_from_contact_added,
@@ -1197,38 +1008,31 @@ SELECT DISTINCT a.account_id,
  coalesce(days_from_artifacts_size_change, -1) AS days_from_artifacts_size_change,
  coalesce(days_from_binaries_count_change, -1) AS days_from_binaries_count_change,
  coalesce(days_from_binaries_size_change, -1) AS days_from_binaries_size_change,
- coalesce(days_from_items_count_change, -1) AS days_from_items_count_change, -- coalesce(days_from_last_xray, -1) AS days_from_last_xray,
--- coalesce(total_security_policies, -1) AS total_security_policies,
--- coalesce(total_policies_count, -1) AS total_policies_count,
--- coalesce(total_violations_count, -1) AS total_violations_count,
--- coalesce(total_watches_count, -1) AS total_watches_count,
+ coalesce(days_from_items_count_change, -1) AS days_from_items_count_change,
 coalesce(days_from_permissions_change, -1) AS days_from_permissions_change,
                                                             coalesce(days_from_internal_groups_change, -1) AS days_from_internal_groups_change,
-                                                            coalesce(days_from_users_change, -1) AS days_from_users_change, -- coalesce(days_from_indexed_repos_change, -1) AS days_from_indexed_repos_change,
--- coalesce(days_from_policies_change, -1) AS days_from_policies_change,
--- coalesce(days_from_violations_change, -1) AS days_from_violations_change,
--- coalesce(days_from_watches_change, -1) AS days_from_watches_change,
- coalesce(n_jira_cases, 0) AS n_jira_cases,
- coalesce(unresolved_jira_cases, 0) AS unresolved_jira_cases,
- coalesce(avg_resolution_days, -1) AS avg_resolution_days,
- coalesce(pricing_views, -1) AS pricing_views,
- coalesce(artifactory_views, -1) AS artifactory_views,
- coalesce(xray_views, -1) AS xray_views,
- coalesce(support_views, -1) AS support_views_views,
- coalesce(knowledge_views, -1) AS knowledge_views, --  coalesce(datediff(MONTH, sl.createddate ::date, a.relevant_date), -1) AS seniority,
- coalesce(n_trials, 0) AS n_trials,
- coalesce(n_ent_trials, 0) AS n_ent_trials,
- coalesce(n_ha_mentioned_sessions, 0) AS n_ha_mentioned_sessions,
- coalesce(n_ent_mentioned_sessions, 0) AS n_ent_mentioned_sessions,
- coalesce(n_competitor_mentioned_sessions, 0) AS n_competitor_mentioned_sessions,
- coalesce(n_xray_mentioned_sessions, 0) AS n_xray_mentioned_sessions,
- coalesce(n_replys, 0) AS n_replys,
- coalesce(n_sent, 0) AS n_sent,
- coalesce(n_calls, 0) AS n_calls,
- coalesce(n_task_xray, 0) AS n_task_xray,
- coalesce(replys_to_sent, -1) AS replys_to_sent,
- coalesce(days_since_reply, 1000) AS days_since_reply,
- coalesce(days_since_sent, 1000) AS days_since_sent -- coalesce(days_since_xray_task, 1000) AS days_since_xray_task
+                                                            coalesce(days_from_users_change, -1) AS days_from_users_change,
+coalesce(n_jira_cases, 0) AS n_jira_cases,
+coalesce(unresolved_jira_cases, 0) AS unresolved_jira_cases,
+coalesce(avg_resolution_days, -1) AS avg_resolution_days,
+coalesce(pricing_views, -1) AS pricing_views,
+coalesce(artifactory_views, -1) AS artifactory_views,
+coalesce(xray_views, -1) AS xray_views,
+coalesce(support_views, -1) AS support_views_views,
+coalesce(knowledge_views, -1) AS knowledge_views,
+coalesce(n_trials, 0) AS n_trials,
+coalesce(n_ent_trials, 0) AS n_ent_trials,
+coalesce(n_ha_mentioned_sessions, 0) AS n_ha_mentioned_sessions,
+coalesce(n_ent_mentioned_sessions, 0) AS n_ent_mentioned_sessions,
+coalesce(n_competitor_mentioned_sessions, 0) AS n_competitor_mentioned_sessions,
+coalesce(n_xray_mentioned_sessions, 0) AS n_xray_mentioned_sessions,
+coalesce(n_replys, 0) AS n_replys,
+coalesce(n_sent, 0) AS n_sent,
+coalesce(n_calls, 0) AS n_calls,
+coalesce(n_task_xray, 0) AS n_task_xray,
+coalesce(replys_to_sent, -1) AS replys_to_sent,
+coalesce(days_since_reply, 1000) AS days_since_reply,
+coalesce(days_since_sent, 1000) AS days_since_sent
 FROM #base_accounts AS a
 LEFT JOIN #storage AS b1 ON a.account_id = b1.account_id
 AND a.relevant_date = b1.relevant_date
@@ -1275,41 +1079,13 @@ AND c4.period_range = '6 Months'
 LEFT JOIN #repositories AS c5 ON a.account_id = c5.account_id
 AND a.relevant_date = c5.relevant_date
 AND c5.period_range = '7 Months'
-LEFT JOIN #cbit AS cb ON cb.account_id = a.account_id
+LEFT JOIN #zoom_info_agg AS cb ON cb.account_id = a.account_id
 LEFT JOIN #contacts AS ct ON ct.accountid = a.account_id
 AND a.relevant_date = ct.relevant_date
 LEFT JOIN #training AS tra ON tra.account_id = a.account_id
 AND a.relevant_date = tra.relevant_date
 LEFT JOIN #qoe AS q ON q.account_id = a.account_id
-AND a.relevant_date = q.relevant_date -- LEFT JOIN #xray AS xr1 ON a.account_id = xr1.account_id
--- AND a.relevant_date = xr1.relevant_date
--- AND xr1.period_range = '3 Months'
--- LEFT JOIN #xray AS xr2 ON a.account_id = xr2.account_id
--- AND a.relevant_date = xr2.relevant_date
--- AND xr2.period_range = '4 Months'
--- LEFT JOIN #xray AS xr3 ON a.account_id = xr3.account_id
--- AND a.relevant_date = xr3.relevant_date
--- AND xr3.period_range = '5 Months'
--- LEFT JOIN #xray AS xr4 ON a.account_id = xr4.account_id
--- AND a.relevant_date = xr4.relevant_date
--- AND xr4.period_range = '6 Months'
--- LEFT JOIN #xray AS xr5 ON a.account_id = xr5.account_id
--- AND a.relevant_date = xr5.relevant_date
--- AND xr5.period_range = '7 Months'
--- LEFT JOIN #days_from_xray AS dx ON a.account_id = dx.account_id
--- AND a.relevant_date = dx.relevant_date
--- LEFT JOIN #xray_policies AS xp ON a.account_id = xp.account_id
--- AND a.relevant_date = xp.relevant_date
--- LEFT JOIN #xray_totals AS xt ON a.account_id = xt.account_id
--- AND a.relevant_date = xt.relevant_date
--- LEFT JOIN #days_from_policies_count AS xrp ON a.account_id = xrp.account_id
--- AND a.relevant_date = xrp.relevant_date
--- LEFT JOIN #days_from_watches_count AS xrw ON a.account_id = xrw.account_id
--- AND a.relevant_date = xrw.relevant_date
--- LEFT JOIN #days_from_violations_count AS xrv ON a.account_id = xrv.account_id
--- AND a.relevant_date = xrv.relevant_date
--- LEFT JOIN #days_from_indexed_repos AS dfir ON a.account_id = dfir.account_id
--- AND a.relevant_date = dfir.relevant_date
+AND a.relevant_date = q.relevant_date
 LEFT JOIN #support AS s ON a.account_id = s.account_id
 AND a.relevant_date = s.relevant_date
 LEFT JOIN #technical_sessions AS ts ON a.account_id = ts.account_id
@@ -1334,8 +1110,7 @@ AND a.relevant_date = em.relevant_date
 LEFT JOIN #days_sicne_reply AS dsr ON a.account_id = dsr.account_id
 AND a.relevant_date = dsr.relevant_date
 LEFT JOIN #triggers_sessions AS tss ON a.account_id = tss.account_id
-AND a.relevant_date = tss.relevant_date -- LEFT JOIN #moved_to_prox AS mfp ON a.account_id = mfp.account_id
--- AND a.relevant_date = mfp.relevant_date
+AND a.relevant_date = tss.relevant_date
 LEFT JOIN #days_from_artifacts_count AS dfac ON a.account_id = dfac.account_id
 AND a.relevant_date = dfac.relevant_date
 LEFT JOIN #days_from_artifacts_size AS dfas ON a.account_id = dfas.account_id

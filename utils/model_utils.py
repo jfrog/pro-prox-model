@@ -11,7 +11,8 @@ from utils.model_extensions_utils import FocalLossObjective
 from utils.plot_utils import Evaluation
 
 
-def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision', agg_scores='mean', n_features_to_keep=50):
+def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision', agg_scores='mean',
+                  n_features_to_keep=50):
     if model == 'rf':
         params = {'n_estimators': [200, 500, 1000],
                   'max_depth': stats.randint(3, 10),
@@ -56,6 +57,10 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
     else:
         X_selected = X.copy()
 
+    if model == 'cbc':
+        est = CatBoostClassifier(cat_features=get_cat_feature_names(X_selected), auto_class_weights="Balanced", random_state=5,
+                                 rsm=0.1, verbose=0, loss_function=FocalLossObjective(), eval_metric="Logloss")
+
     clf = RandomizedSearchCV(estimator=est, param_distributions=params,
                              scoring=scoring, refit=True, random_state=5, cv=n_folds, n_iter=n_iter,
                              verbose=2, n_jobs=-1)
@@ -64,18 +69,18 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
         agged_scores = np.mean(cv_scores)
     elif agg_scores == 'median':
         agged_scores = np.median(cv_scores)
-    clf.fit(X, y)
+    clf.fit(X_selected, y)
     if model == 'rf':
         best_clf = RandomForestClassifier(criterion='entropy', bootstrap=True, oob_score=True, random_state=2,
                                           class_weight='balanced', **clf.best_params_)
     elif model == 'lgb':
         best_clf = LGBMClassifier(class_weight='balanced', random_state=5, **clf.best_params_)
     elif model == 'cbc':
-        best_clf = CatBoostClassifier(cat_features=get_cat_feature_names(X), auto_class_weights="Balanced", random_state=5,
+        best_clf = CatBoostClassifier(cat_features=get_cat_feature_names(X_selected), auto_class_weights="Balanced", random_state=5,
                                       rsm=0.1, verbose=0, loss_function=FocalLossObjective(), eval_metric="Logloss", **clf.best_params_)
     elif model == 'hist':
         best_clf = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
                                                   random_state=5, loss="auto", scoring="Logloss", **clf.best_params_)
     best_clf.fit(X_selected, y)
-    return agged_scores, best_clf
+    return agged_scores, best_clf, X_selected.columns
 

@@ -23,19 +23,16 @@ df_test = pro_upsell_preprocess(df_test.copy())
 cols_to_drop = [col for col in df_train.columns if
                 'period_range' in col or 'relevant_date' in col or 'account_id' in col
                 or 'class' in col or 'has_won' in col]
-X_train, y_train = df_train.drop(cols_to_drop, axis=1).fillna(-1), df_train['class']
-score, clf = cv_evaluation(model=model, X=X_train, y=y_train)
-X_test, y_test = df_test.drop(cols_to_drop, axis=1).fillna(-1), df_test['class']
+numeric_cols = df_train.select_dtypes(include=np.number).columns
+numeric_cols = [x for x in numeric_cols if 'class' not in x]
+X_train, y_train = df_train.drop(cols_to_drop, axis=1), df_train['class']
+X_train[numeric_cols] = X_train[numeric_cols].fillna(-1)
+score, clf, selected_cols = cv_evaluation(model=model, X=X_train, y=y_train)
+X_test, y_test = df_test.drop(cols_to_drop, axis=1), df_test['class']
+X_test[numeric_cols] = X_test[numeric_cols].fillna(-1)
 
-# - feature selection
-n_folds = 5
-n_features_to_keep = 50
-feature_importance = Evaluation().plot_cv_precision_recall(clf=clf, n_folds=n_folds, n_repeats=1, X=X_train, y=y_train)
-feature_importance['average_importance'] = feature_importance[[f'fold_{fold_n + 1}' for fold_n in range(n_folds)]].mean(axis=1)
-features_to_keep = feature_importance.sort_values(by='average_importance', ascending=False).head(n_features_to_keep)['feature']
-X_train_selected = X_train[[col for col in features_to_keep]]
-X_test_selected = X_test[X_train_selected.columns]
-clf.fit(X_train_selected, y_train)
+X_train_selected = X_train[selected_cols]
+X_test_selected = X_test[selected_cols]
 # --- evaluation
 # - AP
 y_scores = clf.predict_proba(X_test_selected)[:, 1]
@@ -67,6 +64,14 @@ output_df = create_output_table(res_df, clf, X_test_selected, 5, X_test_disc)
 output_df_not_low = output_df.query('rating != "low"')
 output_df_not_low.groupby('account_id').agg({'shap_importance': lambda x: np.sum(x > 0.05)}).hist()
 plt.show()
+
+
+
+
+
+
+
+
 
 
 

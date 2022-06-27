@@ -91,5 +91,6 @@ def names_mapping():
                'number_of_users_quarter_growth': 'Number of users quarterly growth',
                'n_repos_quarter_growth': 'Number of repositories quarterly growth',
                'number_of_permissions_quarter_growth': 'Number of permissions quarterly growth',
-               'internal_groups_quarter_growth': 'Number of internal groups quarterly growth'}
+               'internal_groups_quarter_growth': 'Number of internal groups quarterly growth',
+               'revenue_range': 'Company revenue (range)'}
     return mapping

@@ -44,8 +44,9 @@ def pro_upsell_preprocess(df):
     df['artifacts/binaries_size'] = np.where(df['binaries_size'] == 0, 0, df['artifacts_size'] / df['binaries_size'])
     df['artifacts/binaries_count'] = np.where(df['binaries_count'] == 0, 0,
                                               df['artifacts_count'] / df['binaries_count'])
-    df = df.drop(['total_employees_with_details', 'days_from_contact_added', 'territory', 'industry_group',
-                  'total_employees_range'], axis=1)
+    #df = df.drop(['total_employees_with_details', 'days_from_contact_added', 'territory', 'industry_group',
+    #              'total_employees_range'], axis=1)
+    df = df.drop('total_employees_with_details', axis=1)
     return df
 
 
