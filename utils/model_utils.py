@@ -9,6 +9,7 @@ from sklearn.model_selection import cross_val_score, RandomizedSearchCV
 from utils.general_utils import get_cat_feature_names
 from utils.model_extensions_utils import FocalLossObjective
 from utils.plot_utils import Evaluation
+from sklearn.preprocessing import LabelEncoder
 
 
 def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision', agg_scores='mean',
@@ -49,7 +50,7 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
         est = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
                                              random_state=5, loss="auto", scoring="Logloss")
 
-    if model in ['hist', 'rf']:
+    if model in ['hist', 'rf', 'lgb']:
         X = X.select_dtypes(include=np.number)
 
     if model != 'hist':
