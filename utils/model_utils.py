@@ -31,7 +31,7 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
                            'colsample_bytree': scipy.stats.uniform(loc=0.4, scale=0.6),
                            'reg_alpha': [0, 1e-1, 1, 2, 5, 7, 10, 50, 100],
                            'reg_lambda': [0, 1e-1, 1, 5, 10, 20, 50, 100]}
-        est = LGBMClassifier(class_weight='balanced', random_state=5, categorical_feature=get_cat_feature_names(X))
+        est = LGBMClassifier(class_weight='balanced', random_state=5)
     elif model == 'cbc':
         params = {'iterations': [100, 250, 500, 1000],
                   'learning_rate': stats.uniform(0.01, 0.3),
@@ -67,7 +67,7 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
         est = CatBoostClassifier(cat_features=get_cat_feature_names(X_selected), auto_class_weights="Balanced", random_state=5,
                                  rsm=0.1, verbose=0, loss_function=FocalLossObjective(), eval_metric="Logloss")
     elif model == 'lgb':
-        est = LGBMClassifier(class_weight='balanced', random_state=5, categorical_feature=get_cat_feature_names(X_selected))
+        est = LGBMClassifier(class_weight='balanced', random_state=5)
 
     clf = RandomizedSearchCV(estimator=est, param_distributions=params,
                              scoring=scoring, refit=True, random_state=5, cv=n_folds, n_iter=n_iter,
