@@ -49,6 +49,9 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
         est = HistGradientBoostingClassifier(categorical_features=get_cat_feature_names(X), verbose=0,
                                              random_state=5, loss="auto", scoring="Logloss")
 
+    if model in ['hist', 'rf']:
+        X = X.select_dtypes(include=np.number)
+
     if model != 'hist':
         feature_importance = Evaluation().plot_cv_precision_recall(clf=est, n_folds=n_folds, n_repeats=1, X=X, y=y)
         feature_importance['average_importance'] = feature_importance[[f'fold_{fold_n + 1}' for fold_n in range(n_folds)]].mean(axis=1)
@@ -57,8 +60,7 @@ def cv_evaluation(model, X, y, n_folds=5, n_iter=20, scoring='average_precision'
     else:
         X_selected = X.copy()
 
-    if model in ['hist', 'rf']:
-        X_selected = X_selected.select_dtypes(include=np.number)
+
 
     if model == 'cbc':
         est = CatBoostClassifier(cat_features=get_cat_feature_names(X_selected), auto_class_weights="Balanced", random_state=5,
