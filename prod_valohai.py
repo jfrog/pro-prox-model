@@ -36,7 +36,10 @@ def fit_evaluate(model, n_folds=5):
     cols_to_drop = [col for col in df_train.columns if
                     'period_range' in col or 'relevant_date' in col or 'account_id' in col
                     or 'class' in col or 'has_won' in col]
-    X, y = df_train.drop(cols_to_drop, axis=1).fillna(-1), df_train['class']
+    numeric_cols = df_train.select_dtypes(include=np.number).columns
+    numeric_cols = [x for x in numeric_cols if 'class' not in x]
+    X, y = df_train.drop(cols_to_drop, axis=1), df_train['class']
+    X[numeric_cols] = X[numeric_cols].fillna(-1)
     score, clf, selected_cols = cv_evaluation(model=model, X=X, y=y, n_folds=n_folds, scoring='average_precision',
                                               n_iter=20)
     X_selected = X[selected_cols]
@@ -76,7 +79,10 @@ def predict_explain():
     cols_to_drop = [col for col in df_test.columns if
                     'period_range' in col or 'relevant_date' in col or 'account_id' in col
                     or 'class' in col or 'has_won' in col]
-    X_test = df_test.drop(cols_to_drop, axis=1).fillna(-1)
+    numeric_cols = df_test.select_dtypes(include=np.number).columns
+    numeric_cols = [x for x in numeric_cols if 'class' not in x]
+    X_test = df_test.drop(cols_to_drop, axis=1)
+    X_test[numeric_cols] = X_test[numeric_cols].fillna(-1)
     X_test = X_test[x_cols]
 
     top_model = pickle.load(open('/valohai/inputs/top_model/top_model.sav', 'rb'))
