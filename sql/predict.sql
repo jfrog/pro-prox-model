@@ -694,43 +694,48 @@ select roles.*,
 into #zoom_info_agg
 from
 
-(SELECT account_id, total_employees_range
+(SELECT account_id, max(total_employees_range) as total_employees_range
 FROM(SELECT account_id,total_employees_range,
             RANK() OVER(PARTITION BY account_id ORDER BY COUNT(*) DESC) rnk
      FROM #zoom_info_raw
     group by 1,2)  AS s2
-WHERE rnk = 1) as e
+WHERE rnk = 1
+group by 1) as e
 join
-(SELECT account_id, industry_group
+(SELECT account_id, max(industry_group) as industry_group
 FROM(SELECT account_id,industry_group,
             RANK() OVER(PARTITION BY account_id ORDER BY COUNT(*) DESC) rnk
      FROM #zoom_info_raw
     group by 1,2)  AS s2
-WHERE rnk = 1) as i
+WHERE rnk = 1
+group by 1) as i
 on e.account_id = i.account_id
 join
-(SELECT account_id, company_type
+(SELECT account_id, max(company_type) as company_type
 FROM(SELECT account_id,company_type,
             RANK() OVER(PARTITION BY account_id ORDER BY COUNT(*) DESC) rnk
      FROM #zoom_info_raw
     group by 1,2)  AS s2
-WHERE rnk = 1) as ct
+WHERE rnk = 1
+group by 1) as ct
 on e.account_id = ct.account_id
 join
-(SELECT account_id, revenue_range
+(SELECT account_id, max(revenue_range) as revenue_range
 FROM(SELECT account_id,revenue_range,
             RANK() OVER(PARTITION BY account_id ORDER BY COUNT(*) DESC) rnk
      FROM #zoom_info_raw
     group by 1,2)  AS s2
-WHERE rnk = 1) as rr
+WHERE rnk = 1
+group by 1) as rr
 on e.account_id = rr.account_id
 join
-(SELECT account_id, founded_year
+(SELECT account_id, max(founded_year) as founded_year
 FROM(SELECT account_id,founded_year,
             RANK() OVER(PARTITION BY account_id ORDER BY COUNT(*) DESC) rnk
      FROM #zoom_info_raw
     group by 1,2)  AS s2
-WHERE rnk = 1) as fy
+WHERE rnk = 1
+group by 1) as fy
 on e.account_id = fy.account_id
 join
 (select account_id,
