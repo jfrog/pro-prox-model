@@ -36,9 +36,10 @@ def create_output_table(result_df, model, X_test, n_largest=5, X_test_disc=None)
     cols_to_drop = DROP_FROM_DRILL_DOWN
     cols_to_drop += [col for col in X_test.columns if '/seniority' in col]
     shap_df = shap_df.drop(cols_to_drop, axis=1, errors='ignore')
-    X_test_disc = X_test_disc.reset_index(drop=True)
-    shap_df = shap_df.where(~X_test_disc[shap_df.columns].isin(['other', 'unknown']), other=np.nan)
-    shap_df = shap_df.where(X_test_disc != -1, other=np.nan)
+    X_test_values = X_test_disc if X_test_disc is not None else X_test
+    X_test_values = X_test_values.reset_index(drop=True)
+    shap_df = shap_df.where(~X_test_values[shap_df.columns].isin(['other', 'unknown']), other=np.nan)
+    shap_df = shap_df.where(X_test_values != -1, other=np.nan)
 
     full_shap_df = pd.DataFrame(columns=X_test.columns)
     for col in X_test.columns:
@@ -61,8 +62,6 @@ def create_output_table(result_df, model, X_test, n_largest=5, X_test_disc=None)
     largest_negative[order != order1] = np.nan
     result = pd.concat([largest_positive, largest_negative], axis=1)
 
-
-    X_test_values = X_test_disc if X_test_disc is not None else X_test
     quantiles_lower = {col: np.quantile(X_test_values[col], 0.33) for col in X_test_values.columns if X_test_values.dtypes[col] in ('int', 'float')}
     quantiles_upper = {col: np.quantile(X_test_values[col], 0.66) for col in X_test_values.columns if X_test_values.dtypes[col] in ('int', 'float')}
 
@@ -145,9 +144,9 @@ def _flag_ignored_features_if_not_high(
     candidates = df["feature"].str.contains(
         "|".join(setup_data["IGNORE_FEATURES_IF_NOT_HIGH"])
     )
-    low = df["feature_value"].str.contains("relatively high", regex=False)
-    candidates_with_low = candidates & low
-    df.loc[~(~candidates | candidates_with_low), "is_insight_ignored"] = 1
+    high = df["feature_value"].str.contains("high", regex=False)
+    candidates_with_high = candidates & high
+    df.loc[~(~candidates | candidates_with_high), "is_insight_ignored"] = 1
     return df
 
 
@@ -157,7 +156,7 @@ def _flag_ignored_features_if_not_low(
     candidates = df["feature"].str.contains(
         "|".join(setup_data["IGNORE_FEATURES_IF_NOT_LOW"])
     )
-    low = df["feature_value"].str.contains("relatively low", regex=False)
+    low = df["feature_value"].str.contains("low", regex=False)
     candidates_with_low = candidates & low
     df.loc[~(~candidates | candidates_with_low), "is_insight_ignored"] = 1
     return df

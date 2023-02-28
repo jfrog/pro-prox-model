@@ -34,6 +34,7 @@ def names_mapping():
                'industry_group': 'Industry', # - TODO
                'total_employees_range': 'Number of employees (range)',  # - TODO
                'company_age': 'Company age (years)',  # - TODO
+               'company_type': 'Company type',
 
                'seniority': 'Seniority in JFrog (months)', # - TODO
                'days_from_contact_added': 'Number of days since last contact added',
@@ -50,10 +51,11 @@ def names_mapping():
                'n_sent': 'Number of Emails sent',
                'days_since_reply': 'Number of days since the account replayed to an Email',
                'days_since_sent': 'Number of days since an Email sent to the account',
+
                'n_repos': 'Number of repositories',
                'n_env': 'Number of environments',
                'n_tech': 'Number of technologies',
-               'n_jira_cases': 'Number of Jira cases last year',
+               'n_jira_cases': 'Number of Jira cases last year', # - TODO
                'n_env_monthly_growth': 'Number of environments monthly incline',
                'n_env_quarter_growth': 'Number of environments quarterly incline',
                'n_tech_monthly_growth': 'Number of technologies monthly incline',
@@ -93,7 +95,7 @@ def names_mapping():
                'n_repos_quarter_growth': 'Number of repositories quarterly incline',
                'number_of_permissions_quarter_growth': 'Number of permissions quarterly incline',
                'internal_groups_quarter_growth': 'Number of internal groups quarterly incline',
-               'revenue_range': 'Company revenue (range)',
+               'revenue_range': 'Company revenue (range)', # - TODO
                'n_ent_mentioned_sessions': 'Number of times enterprise mentioned in sessions',
                'n_ha_mentioned_sessions': 'Number of times high-availability mentioned in sessions',
                'n_xray_mentioned_sessions': 'Number of times xray mentioned in sessions',

@@ -94,8 +94,8 @@ def predict_explain():
     threshold_to_medium = 0.5
     res_df['rating'] = np.where(res_df['prob'] < threshold_to_high,
                                 np.where(res_df['prob'] < threshold_to_medium, 'low', 'medium'), 'high')
-    X_test_disc = binning_features(X_test.copy())
-    output_df = create_output_table(res_df, top_model, X_test, 5, X_test_disc)
+    #X_test_disc = binning_features(X_test.copy())
+    output_df = create_output_table(res_df, top_model, X_test, 5)
     mapping = names_mapping()
     output_df = output_df.replace({"feature": mapping})
     insights = InsightsSHUpsell(features_df=output_df.copy())
