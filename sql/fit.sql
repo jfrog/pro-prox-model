@@ -598,7 +598,7 @@ SELECT a.account_id,
                       END) AS n_ent_trials INTO #trials
 FROM #base_accounts AS a
 LEFT JOIN salesforce.trial AS b ON a.account_id = b.account__c
-WHERE createddate BETWEEN add_months(date_trunc('month', a.relevant_date), -24) AND a.relevant_date --and status__c not in ('BLACKLISTED', 'Cancelled')
+WHERE createddate BETWEEN add_months(date_trunc('month', a.relevant_date), -12) AND a.relevant_date --and status__c not in ('BLACKLISTED', 'Cancelled')
 GROUP BY 1,
          2;
 

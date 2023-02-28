@@ -1,9 +1,18 @@
 import re
+from typing import Dict
 
 import pandas as pd
 import numpy as np
 import shap
 from sklearn.preprocessing import KBinsDiscretizer
+from config.features import Features
+
+DROP_FROM_DRILL_DOWN = ['artifacts/binaries_size', 'artifacts/binaries_count', 'did_sessions_and_cases_last_year',
+                        'territory', 'replys_to_sent', 'count_pro', 'days_from_indexed_repos_change',
+                        'n_replys', 'n_calls', 'n_task_xray', 'engineers', 'devops_engineers', 'developers']
+REPORT_SETUP = {"IGNORE_FEATURES": list(Features.REPORT_IGNORE),
+                "IGNORE_FEATURES_IF_NOT_HIGH": list(Features.REPORT_IGNORE_IF_NOT_HIGH),
+                "IGNORE_FEATURES_IF_NOT_LOW": list(Features.REPORT_IGNORE_IF_NOT_LOW)}
 
 
 def create_output_table(result_df, model, X_test, n_largest=5, X_test_disc=None):
@@ -24,9 +33,7 @@ def create_output_table(result_df, model, X_test, n_largest=5, X_test_disc=None)
         shap_mat = shap_mat[1]
 
     shap_df = pd.DataFrame(shap_mat, columns=X_test.columns)
-    cols_to_drop = ['artifacts/binaries_size', 'artifacts/binaries_count', 'did_sessions_and_cases_last_year',
-                    'territory', 'replys_to_sent', 'count_pro', 'days_from_indexed_repos_change',
-                    'n_replys', 'n_calls', 'n_task_xray', 'engineers', 'devops_engineers', 'developers']
+    cols_to_drop = DROP_FROM_DRILL_DOWN
     cols_to_drop += [col for col in X_test.columns if '/seniority' in col]
     shap_df = shap_df.drop(cols_to_drop, axis=1, errors='ignore')
     X_test_disc = X_test_disc.reset_index(drop=True)
@@ -84,7 +91,9 @@ def create_output_table(result_df, model, X_test, n_largest=5, X_test_disc=None)
     output_df = output_with_features.merge(output_with_shap, on=['account_id', 'variable'])
     output_df.columns = list(result_df.columns) + ['feature', 'feature_value', 'shap_importance']
     output_df['relative_value'] = np.nan
-    output_df = output_df[['account_id', 'prob', 'rating', 'feature', 'feature_value', 'relative_value', 'shap_importance']]
+    output_df = filter_features(output_df)
+    output_df = output_df[['account_id', 'prob', 'rating', 'feature', 'feature_value', 'relative_value',
+                           'shap_importance', 'is_insight_ignored']]
     return output_df
 
 
@@ -117,3 +126,46 @@ def binning_features(X_test):
         X_test_disc.at[X_test_disc.company_age == -1, 'company_age'] = 'unknown'
     return X_test_disc
 
+
+def _flag_ignored_features(df: pd.DataFrame, setup_data: Dict) -> pd.DataFrame:
+    df.loc[
+        df["feature"].str.contains("|".join(setup_data["IGNORE_FEATURES"])),
+        "is_insight_ignored",
+    ] = 1
+    df.loc[
+        ~df["feature"].str.contains("|".join(setup_data["IGNORE_FEATURES"])),
+        "is_insight_ignored",
+    ] = 0
+    return df
+
+
+def _flag_ignored_features_if_not_high(
+        df: pd.DataFrame, setup_data: Dict
+) -> pd.DataFrame:
+    candidates = df["feature"].str.contains(
+        "|".join(setup_data["IGNORE_FEATURES_IF_NOT_HIGH"])
+    )
+    low = df["feature_value"].str.contains("relatively high", regex=False)
+    candidates_with_low = candidates & low
+    df.loc[~(~candidates | candidates_with_low), "is_insight_ignored"] = 1
+    return df
+
+
+def _flag_ignored_features_if_not_low(
+        df: pd.DataFrame, setup_data: Dict
+) -> pd.DataFrame:
+    candidates = df["feature"].str.contains(
+        "|".join(setup_data["IGNORE_FEATURES_IF_NOT_LOW"])
+    )
+    low = df["feature_value"].str.contains("relatively low", regex=False)
+    candidates_with_low = candidates & low
+    df.loc[~(~candidates | candidates_with_low), "is_insight_ignored"] = 1
+    return df
+
+
+def filter_features(features_df):
+    setup_data = REPORT_SETUP
+    features_df = _flag_ignored_features(features_df, setup_data)
+    features_df = _flag_ignored_features_if_not_high(features_df, setup_data)
+    features_df = _flag_ignored_features_if_not_low(features_df, setup_data)
+    return features_df

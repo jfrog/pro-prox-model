@@ -15,26 +15,27 @@ def names_mapping():
                'pypi': 'Pypi repositories',
                'gradle': 'Gradle repositories',
                'nuget': 'Nuget repositories',
-               'n_ent_trials': 'Number of Enterprise trials last two years',
-               'unresolved_jira_cases': 'Unresolved Jira cases last year',
+
+               'n_ent_trials': 'Number of Enterprise trials in the last year',
+               'unresolved_jira_cases': 'Unresolved Jira cases in the last year', # - TODO
                'n_contacts': 'Number of contacts',
-               'n_trials': 'Number of trials last year',
+               'n_trials': 'Number of trials in the last year',
                'n_active_contracts': 'Number of active contracts',
-               'pricing_views': 'Number of views in the pricing page',
-               'artifactory_views': 'Number of views in the artifactory page',
-               'xray_views': 'Number of views in the Xray page',
-               'support_views_views': 'Number of views in the support page',
-               'knowledge_views': 'Number of views in the knowledge-base page',
+               'pricing_views': 'Number of views in the pricing page', # - TODO
+               'artifactory_views': 'Number of views in the artifactory page', # - TODO
+               'xray_views': 'Number of views in the Xray page', # - TODO
+               'support_views_views': 'Number of views in the support page', # - TODO
+               'knowledge_views': 'Number of views in the knowledge-base page', # - TODO
                'is_cotermed': 'Is previously co-termed?',
-               'months_from_upgrade': 'Number of months passed since upgrade from Pro to Pro X',
-               'n_sessions_last_year': 'Number of sessions last year',
-               'n_xray_sessions_last_year': 'Number of Xray sessions last year',
-               'n_cases_last_year': 'Number of cases last year',
+               'n_sessions_last_year': 'Number of sessions in the last year',
+               'n_xray_sessions_last_year': 'Number of Xray sessions in the last year',
+               'n_cases_last_year': 'Number of cases in the last year',
                'avg_resolution_days': 'Average resolution days for a case',
-               'industry_group': 'Industry',
-               'total_employees_range': 'Number of employees (range)',
-               'company_age': 'Company age (years)',
-               'seniority': 'Seniority in JFrog (months)',
+               'industry_group': 'Industry', # - TODO
+               'total_employees_range': 'Number of employees (range)',  # - TODO
+               'company_age': 'Company age (years)',  # - TODO
+
+               'seniority': 'Seniority in JFrog (months)', # - TODO
                'days_from_contact_added': 'Number of days since last contact added',
                'days_from_artifacts_size_change': 'Number of days since artifacts size changed',
                'days_from_artifacts_count_change': 'Number of days since artifacts count changed',
@@ -44,8 +45,8 @@ def names_mapping():
                'days_from_permissions_change': 'Number of days since number of permissions changed',
                'days_from_internal_groups_change': 'Number of days since number of internal groups changed',
                'days_from_users_change': 'Number of days since number of users changed',
-               'total_security_policies': 'Number of secured policies (Xray)',
-               'days_since_xray_task': 'Number of days since Xray task',
+               'total_security_policies': 'Number of secured policies (Xray)', # - TODO
+               'days_since_xray_task': 'Number of days since last Xray task',
                'n_sent': 'Number of Emails sent',
                'days_since_reply': 'Number of days since the account replayed to an Email',
                'days_since_sent': 'Number of days since an Email sent to the account',
@@ -82,7 +83,7 @@ def names_mapping():
                'nuget_quarter_growth': 'Nuget quarterly incline',
                'pypi_quarter_growth': 'Pypi quarterly incline',
                'n_security_contacts': 'Number of security contacts',
-               'n_cases_last_3_months': 'Number of cases 3 last months',
+               'n_cases_last_3_months': 'Number of cases in the last 3 months',
                'artifacts_count_quarter_growth': 'Artifacts count quarterly incline',
                'artifacts_size_quarter_growth': 'Artifacts size quarterly incline',
                'binaries_count_quarter_growth': 'Binaries count quarterly incline',
@@ -92,5 +93,9 @@ def names_mapping():
                'n_repos_quarter_growth': 'Number of repositories quarterly incline',
                'number_of_permissions_quarter_growth': 'Number of permissions quarterly incline',
                'internal_groups_quarter_growth': 'Number of internal groups quarterly incline',
-               'revenue_range': 'Company revenue (range)'}
+               'revenue_range': 'Company revenue (range)',
+               'n_ent_mentioned_sessions': 'Number of times enterprise mentioned in sessions',
+               'n_ha_mentioned_sessions': 'Number of times high-availability mentioned in sessions',
+               'n_xray_mentioned_sessions': 'Number of times xray mentioned in sessions',
+               'n_competitor_mentioned_sessions': 'Number of times competitors mentioned in sessions',}
     return mapping

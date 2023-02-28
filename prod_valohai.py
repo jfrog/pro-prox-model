@@ -8,6 +8,7 @@ from boto.s3.key import Key
 import pandas as pd
 import numpy as np
 from utils.general_utils import load_data_valohai, get_cat_feature_names
+from utils.insights_utils import InsightsSHUpsell
 from utils.plot_utils import Evaluation
 from utils.preprocessing_utils import pro_upsell_preprocess, consolidate_opps
 from utils.model_utils import cv_evaluation
@@ -91,14 +92,15 @@ def predict_explain():
     res_df['prob'] = top_model.predict_proba(X_test)[:, 1]
     threshold_to_high = 0.6
     threshold_to_medium = 0.5
-    #threshold_to_high = res_df['prob'].quantile(0.85)
-    #threshold_to_medium = res_df['prob'].quantile(0.7)
     res_df['rating'] = np.where(res_df['prob'] < threshold_to_high,
                                 np.where(res_df['prob'] < threshold_to_medium, 'low', 'medium'), 'high')
     X_test_disc = binning_features(X_test.copy())
     output_df = create_output_table(res_df, top_model, X_test, 5, X_test_disc)
     mapping = names_mapping()
     output_df = output_df.replace({"feature": mapping})
+    insights = InsightsSHUpsell(features_df=output_df.copy())
+    insights.translate_into_insight()
+    output_df = insights.features_df.copy()
     output_df.to_csv('/valohai/outputs/final_prediction.csv', index=False)
 
 
