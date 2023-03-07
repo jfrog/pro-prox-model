@@ -70,7 +70,7 @@ class Insights(ABC):
             # make missing values interpretable
             insight = insight.replace('-1', '0', regex=True)
             self.features_df.loc[idx, 'long_insight'] = insight.values
-            self.features_df.loc[idx, 'medium_insight'] = medium_insight
+            self.features_df.loc[idx, 'medium_insight'] = insight.values if feature_col.lower().__contains__('seniority') else medium_insight
             self.features_df.loc[idx, 'short_insight'] = short_insight
 
     @abstractmethod
