@@ -11,7 +11,8 @@ class Features:
                             'n_small_talk_topics', 'n_pricing_topics', 'n_call_setup_topics',
                             'n_ha_mentioned_sessions', 'n_ent_mentioned_sessions', 'n_competitor_mentioned_sessions',
                             'n_xray_mentioned_sessions', 'is_cotermed', 'days_since_xray_task', 'n_sent',
-                            'days_since_reply', 'days_since_sent', 'leading_tech', 'n_security_contacts')
+                            'days_since_reply', 'days_since_sent', 'leading_tech', 'n_security_contacts',
+                            'pricing_views', 'artifactory_views', 'xray_views', 'support_views', 'knowledge_views')
     REPORT_IGNORE_IF_NOT_HIGH: Tuple = ('artifacts_size', 'artifacts_count', 'binaries_size', 'binaries_count',
                                         'items_count', 'number_of_permissions', 'internal_groups', 'number_of_users',
                                         'maven', 'generic', 'docker', 'npm', 'pypi', 'gradle', 'nuget',

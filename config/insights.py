@@ -22,24 +22,24 @@ class ShortInsights(Insights):
 class MediumInsights:
     def __init__(self):
         self._initialize_all_feats()
-        self.NUMBER_OF_VISITS_PRIVATE = 'High interest in JFrog web materials/pages; can indicate potential upsell'
-        self.NUMBER_OF_VISITS_PUBLIC = 'High interest in JFrog web materials/pages; can indicate potential upsell'
-        self.NUMBER_OF_CONTRACTS = 'High number of active contracts with the account; can indicate potential upsell'
-        self.NUMBER_OF_CONTACT = 'High number of contacts; can be leveraged to a potential upsell'
-        self.DAYS_FROM_LAST_CONTACT = 'New contact for the account has been added recently; can indicate potential upsell opportunity'
+        self.NUMBER_OF_VISITS_PRIVATE = 'High interest in JFrog web materials/pages'
+        self.NUMBER_OF_VISITS_PUBLIC = 'High interest in JFrog web materials/pages'
+        self.NUMBER_OF_CONTRACTS = 'High number of active contracts with the account'
+        self.NUMBER_OF_CONTACT = 'High number of contacts'
+        self.DAYS_FROM_LAST_CONTACT = 'New contact for the account has been added recently'
         self.PLATFORM_ACTIVITY = 'High activity in JFrog platform detected in the last few days'
-        self.RESOLVE_DAYS = 'The account experienced short support cases resolution period in the last year; can indicate they are satisfied from JFrog support'
+        self.RESOLVE_DAYS = 'The account experienced short support cases resolution period in the last year'
 
     def to_dict(self):
         return vars(self)
 
     def _set_high_value_detection(self, name: str, value: str, is_jfrog_platform: bool,
-                                  period: str, indication: str):
+                                  period: str):
         jfrog_platform_text = ' in JFrog platform' if is_jfrog_platform else ''
         setattr(
             self,
             name,
-            f"High {value} detected{jfrog_platform_text}{period}; can indicate {indication}",
+            f"High {value} detected{jfrog_platform_text}{period}",
         )
 
     def _initialize_all_feats(self):
@@ -138,12 +138,8 @@ class MediumInsights:
             name = self._get_variable_name(value) + name_period_suffix
             not_jfrog_platform_ls = ['training', 'sessions', 'trials', 'cases']
             is_not_jfrog_platform = any([x in value for x in not_jfrog_platform_ls])
-            high_adoption_ls = ['repositories', 'training', 'permissions', 'internal', 'technologies']
-            is_high_adoption = any([x in value for x in high_adoption_ls])
-            indication = "high adoption" if is_high_adoption else "potential upsell"
             self._set_high_value_detection(name=name, value=value, period=period,
-                                           is_jfrog_platform=not is_not_jfrog_platform,
-                                           indication=indication)
+                                           is_jfrog_platform=not is_not_jfrog_platform)
 
     @staticmethod
     def _get_variable_name(value: str) -> str:

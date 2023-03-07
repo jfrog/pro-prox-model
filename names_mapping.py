@@ -24,7 +24,7 @@ def names_mapping():
                'pricing_views': 'Number of views in the pricing page', # - TODO
                'artifactory_views': 'Number of views in the artifactory page', # - TODO
                'xray_views': 'Number of views in the Xray page', # - TODO
-               'support_views_views': 'Number of views in the support page', # - TODO
+               'support_views': 'Number of views in the support page', # - TODO
                'knowledge_views': 'Number of views in the knowledge-base page', # - TODO
                'is_cotermed': 'Is previously co-termed?',
                'n_sessions_last_year': 'Number of sessions in the last year',

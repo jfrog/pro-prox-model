@@ -39,7 +39,7 @@ class Insights(ABC):
             self.features_df.loc[idx, 'short_insight'] = short_insight
 
     def _categorical_feat(self, feature_col: str, text_before_cat: str, text_after_cat: str,
-                          short_insight: str = '', medium_insight: str = ''):
+                          short_insight: str = ''):
         idx = self._select_index(feature_col)
         if len(idx) > 0:
             value = self.features_df.loc[idx, 'feature_value']
@@ -51,7 +51,7 @@ class Insights(ABC):
                 insight = f'{text_before_cat} ' + value \
                           + f' {text_after_cat}'
             self.features_df.loc[idx, 'long_insight'] = insight.values
-            self.features_df.loc[idx, 'medium_insight'] = medium_insight
+            self.features_df.loc[idx, 'medium_insight'] = insight.values
             self.features_df.loc[idx, 'short_insight'] = short_insight
 
     def _numeric_feat(self, feature_col: str, text_before_num: str, text_after_num: str,
@@ -494,8 +494,8 @@ class InsightsSHUpsell(Insights):
 
     def _industry_group(self):
         self._categorical_feat(feature_col='Industry',
-                               text_before_cat='Account is active on the',
-                               text_after_cat='field',
+                               text_before_cat='Account is operating on the',
+                               text_after_cat='industry',
                                short_insight=self.SHORT['HIGH_SCALE'])
 
     def _revenue_range(self):
