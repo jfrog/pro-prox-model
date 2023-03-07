@@ -98,6 +98,7 @@ def predict_explain():
     output_df = create_output_table(res_df, top_model, X_test, 5)
     mapping = names_mapping()
     output_df = output_df.replace({"feature": mapping})
+    output_df = output_df.reset_index(drop=True)
     insights = InsightsSHUpsell(features_df=output_df.copy())
     insights.translate_into_insight()
     output_df = insights.features_df.copy()
