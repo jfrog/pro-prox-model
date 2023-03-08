@@ -176,7 +176,7 @@ class InsightsSHUpsell(Insights):
                            text_before_num="Account has",
                            text_after_num='binaries in JFrog platform',
                            short_insight=self.SHORT['PLATFORM'],
-                           medium_insight=self.MEDIUM['BINARIES_COUNT'])
+                           medium_insight=self.MEDIUM['NUMBER_OF_BINARIES'])
 
     def _n_items_count(self):
         self._numeric_feat(feature_col='Storage: items count',
