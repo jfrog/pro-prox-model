@@ -175,7 +175,8 @@ class InsightsSHUpsell(Insights):
         self._numeric_feat(feature_col='Storage: binaries count',
                            text_before_num="Account has",
                            text_after_num='binaries in JFrog platform',
-                           short_insight=self.SHORT['PLATFORM'])
+                           short_insight=self.SHORT['PLATFORM'],
+                           medium_insight=self.MEDIUM['BINARIES_COUNT'])
 
     def _n_items_count(self):
         self._numeric_feat(feature_col='Storage: items count',
@@ -499,7 +500,7 @@ class InsightsSHUpsell(Insights):
                                short_insight=self.SHORT['HIGH_SCALE'])
 
     def _revenue_range(self):
-        self._categorical_feat(feature_col='Revenue range',
+        self._categorical_feat(feature_col='Company revenue (range)',
                                text_before_cat="Account's revenue range is between",
                                text_after_cat='',
                                short_insight=self.SHORT['HIGH_SCALE'])
@@ -510,6 +511,18 @@ class InsightsSHUpsell(Insights):
                            text_after_num='support case(s) in the last 12 months',
                            short_insight=self.SHORT['SUPPORT'],
                            medium_insight=self.MEDIUM['NUMBER_OF_SUPPORT_CASES_IN_THE_LAST_YEAR'])
+
+    def _n_jira_cases_year(self):
+        self._numeric_feat(feature_col='Number of Jira cases in the last year',
+                           text_before_num='Account had',
+                           text_after_num='jira case(s) in the last 12 months',
+                           short_insight=self.SHORT['SUPPORT'])
+
+    def _n_unresolved_jira_cases_year(self):
+        self._numeric_feat(feature_col='Number of unresolved Jira cases in the last year',
+                           text_before_num='Account had',
+                           text_after_num='unresolved jira case(s) in the last 12 months',
+                           short_insight=self.SHORT['SUPPORT'])
 
     def _n_cases_quarter(self):
         self._numeric_feat(feature_col='Number of cases in the last 3 months',
@@ -710,7 +723,7 @@ class InsightsSHUpsell(Insights):
 
             'Industry': self._industry_group(),
             'Company type': self._company_type(),
-            'Revenue range': self._revenue_range(),
+            'Company revenue (range)': self._revenue_range(),
             'Number of cases in the last year': self._n_cases_year(),
             'Number of cases in the last 3 months': self._n_cases_quarter(),
             'Number of sessions in the last year': self._n_sessions(),
@@ -765,5 +778,7 @@ class InsightsSHUpsell(Insights):
             'Number of times high-availability mentioned in sessions': self._n_ha_mentioned_sessions(),
             'Number of times xray mentioned in sessions': self._n_xray_mentioned_sessions(),
             'Number of times competitors mentioned in sessions': self._n_competitor_mentioned_sessions(),
+            'Number of Jira cases in the last year': self._n_jira_cases_year(),
+            'Number of unresolved Jira cases in the last year': self._n_unresolved_jira_cases_year()
         }
 
