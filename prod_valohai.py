@@ -102,6 +102,7 @@ def predict_explain():
     insights = InsightsSHUpsell(features_df=output_df.copy())
     insights.translate_into_insight()
     output_df = insights.features_df.copy()
+    output_df = output_df.drop('relative_value', axis=1)
     output_df.to_csv('/valohai/outputs/final_prediction.csv', index=False)
 
 
