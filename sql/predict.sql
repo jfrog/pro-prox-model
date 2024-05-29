@@ -581,7 +581,7 @@ SELECT a.account_id,
            END) AS avg_resolution_days
 INTO #cases_agg
 FROM #base_accounts AS a
-         LEFT JOIN salesforce_repo.cases AS b ON a.account_id = b.accountid
+         LEFT JOIN salesforce_repo.case AS b ON a.account_id = b.accountid
 WHERE createddate BETWEEN add_months(date_trunc('month', a.relevant_date),
                                      -12) AND a.relevant_date
 GROUP BY 1,
