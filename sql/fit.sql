@@ -624,7 +624,7 @@ SELECT a.account_id,
            END) AS avg_resolution_days
 INTO #cases_agg
 FROM #base_accounts AS a
-         LEFT JOIN salesforce_repo.cases AS b ON a.account_id = b.accountid
+         LEFT JOIN salesforce_repo.case AS b ON a.account_id = b.accountid
 WHERE createddate BETWEEN add_months(date_trunc('month', a.relevant_date),
                                      -12) AND a.relevant_date
 GROUP BY 1,
@@ -687,7 +687,7 @@ SELECT a.account_id,
            END)                          AS n_ent_trials
 INTO #trials
 FROM #base_accounts AS a
-         LEFT JOIN salesforce_repo.trial AS b ON a.account_id = b.account__c
+         LEFT JOIN salesforce_repo.trial__c AS b ON a.account_id = b.account__c
 WHERE createddate BETWEEN add_months(date_trunc('month', a.relevant_date),
                                      -12) AND a.relevant_date --and status__c not in ('BLACKLISTED', 'Cancelled')
 GROUP BY 1,
