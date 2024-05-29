@@ -36,11 +36,11 @@ from (select scores.*,
                             from data_science.pro_to_pro_x_prediction) as b
                            on a.account_id = b.account_id and a.rating = b.rating
              group by 1, 2) as scores
-          left join salesforce_repo.account
+          left join salesforce.account
           on account.id = scores.account_id
           left join
           (select accountid, createddate, product_type__c
-           from salesforce_repo.opportunity) as ops
+           from salesforce.opportunity) as ops
             on (scores.account_id = ops.accountid and
                 scores.first_scoring_date < ops.createddate)))
 where month >= '2021-02-01'

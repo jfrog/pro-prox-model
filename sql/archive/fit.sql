@@ -3,7 +3,7 @@ case when new_product not in ('JFrog Pro', 'JFrog Pro - New Pricing') then 1 els
 ------- base population
 ------ take won and closed from the opp table
 (select distinct accountid, id as opp_id, top_product_id__c, product_type__c, original_product__c, iswon, isclosed, previous_arr__c, arr__c, arr_growth__c, type as opp_type, closedate
-from salesforce_repo.opportunity
+from salesforce.opportunity
 where type != 'New Business' and iswon='true' and isclosed ='true' and closedate >= '2018-01-01') as opps
 join
 (select product_id,product_name old_product from dims.dim_products ---- add previous product name
@@ -34,8 +34,8 @@ SELECT account_id,
                ELSE 0
            END) AS unresolved_jira_cases INTO #jira_cases
 FROM #base_accounts AS a
-JOIN salesforce_repo.account AS b ON a.account_id = left(b.accountid_full, LEN (b.accountid_full) -3)
-JOIN salesforce_repo.dim_jira_cases AS c ON b.name = c.jira_case_account_name
+JOIN salesforce.account AS b ON a.account_id = left(b.accountid_full, LEN (b.accountid_full) -3)
+JOIN salesforce.dim_jira_cases AS c ON b.name = c.jira_case_account_name
 WHERE datediff('month', jira_created_date:: date, relevant_date) <= 12
   AND relevant_date >= jira_created_date:: date
 GROUP BY 1,
@@ -494,7 +494,7 @@ SELECT a.account_id,
                           WHEN movement_date BETWEEN dateadd(MONTH, -3, a.relevant_date) AND a.relevant_date THEN cases.case_id
                       END) AS cases_within_3_last_months INTO #support
 FROM qoc.stg_events_measures AS EVENTS
-LEFT JOIN salesforce_repo.fact_cases AS cases ON cases.case_id = events.case_id
+LEFT JOIN salesforce.fact_cases AS cases ON cases.case_id = events.case_id
 AND events.parameter_id IN (10)
 INNER JOIN #base_accounts AS a ON cases.account_id = a.account_id
 WHERE date_trunc('day', movement_date) BETWEEN add_months(date_trunc('month', a.relevant_date), -12) AND a.relevant_date
@@ -539,7 +539,7 @@ SELECT a.account_id,
               WHEN status IN ('Closed', 'Resolved') THEN datediff('day', createddate, coalesce(resolved_time__c, closeddate))
           END) AS avg_resolution_days INTO #cases_agg
 FROM #base_accounts AS a
-LEFT JOIN salesforce_repo.cases AS b ON a.account_id = b.accountid
+LEFT JOIN salesforce.cases AS b ON a.account_id = b.accountid
 WHERE createddate BETWEEN add_months(date_trunc('month', a.relevant_date), -12) AND a.relevant_date
 GROUP BY 1,
         2;
@@ -577,7 +577,7 @@ SELECT account_id,
        count(distinct(createddate)) AS n_training INTO #training
 FROM
   (SELECT *
-   FROM salesforce_repo.training__c
+   FROM salesforce.training__c
    WHERE recordtypeid='012w0000000R1Yp'
      AND stage__c != 'Unprovided') AS st
 RIGHT JOIN #base_accounts AS ar ON st.account__c = ar.account_id
@@ -597,7 +597,7 @@ SELECT a.account_id,
                           WHEN subscription_type__c = 'ENTERPRISE' THEN createddate::date
                       END) AS n_ent_trials INTO #trials
 FROM #base_accounts AS a
-LEFT JOIN salesforce_repo.trial AS b ON a.account_id = b.account__c
+LEFT JOIN salesforce.trial AS b ON a.account_id = b.account__c
 WHERE createddate BETWEEN add_months(date_trunc('month', a.relevant_date), -24) AND a.relevant_date --and status__c not in ('BLACKLISTED', 'Cancelled')
 GROUP BY 1,
          2;
@@ -617,7 +617,7 @@ SELECT accountid,
                ELSE 0
            END) AS n_security_contacts,
        n_security_contacts::float/n_contacts::float AS security_contacts_prop INTO #contacts
-FROM salesforce_repo.contact AS c
+FROM salesforce.contact AS c
 RIGHT JOIN #base_accounts AS ar ON c.accountid = ar.account_id
 WHERE createddate <= relevant_date
 GROUP BY 1,2;
@@ -628,7 +628,7 @@ SELECT account_id,
       relevant_date,
       CLASS,
       datediff('day', max(createddate), relevant_date) AS days_from_contact_added INTO #days_from_contact
-FROM salesforce_repo.contact AS c
+FROM salesforce.contact AS c
 RIGHT JOIN #base_accounts AS ar ON c.accountid = ar.account_id
 WHERE createddate <= relevant_date
 GROUP BY 1,
@@ -665,7 +665,7 @@ SELECT a.account_id,
                       END)) AS count_pro
 INTO #contracts
 FROM #base_accounts AS a
-LEFT JOIN salesforce_repo.contract AS c ON c.accountid = a.account_id
+LEFT JOIN salesforce.contract AS c ON c.accountid = a.account_id
 WHERE relevant_date >= date_trunc('month', startdate)
 GROUP BY 1,
          2,
@@ -682,7 +682,7 @@ DROP TABLE IF EXISTS #qoe;
 SELECT d.account_id,
        qoe_score,
        relevant_date INTO #qoe
-FROM salesforce_repo.qoe_scores AS d
+FROM salesforce.qoe_scores AS d
 RIGHT JOIN #base_accounts AS ar ON d.account_id = ar.account_id
 WHERE create_date_monthly = relevant_date
   AND is_fictive = 0;
@@ -963,7 +963,7 @@ SELECT da.account_id,
                                 WHEN cbit__employmentsubrole__c like '%engineer%'
                                      OR cbit__employmenttitle__c like '%engineer%' THEN id
                             END) AS engineers INTO #cbit
-FROM salesforce_repo.cbit__clearbit__c a
+FROM salesforce.cbit__clearbit__c a
 INNER JOIN dims.dim_contacts dc ON dc.cbit__clearbit__c = a.id
 INNER JOIN dims.dim_accounts da ON da.account_id = dc.account_id
 GROUP BY 1;
@@ -1028,7 +1028,7 @@ SELECT a.account_id,
                ELSE 0
            END) AS have_cloud_subscription INTO #cloud_sub
 FROM #base_accounts AS a
-JOIN salesforce_repo.contact AS b ON a.account_id = b.accountid
+JOIN salesforce.contact AS b ON a.account_id = b.accountid
 LEFT JOIN dims.dim_cloud_servers AS c ON b.email = c.owner_email
 WHERE aols_creation_date <= relevant_date
   AND server_type != 'Trial'
@@ -1143,7 +1143,7 @@ SELECT a.account_id,
            ELSE -1
        END AS replys_to_sent INTO #emails
 FROM #base_accounts AS a
-JOIN salesforce_repo.task AS b ON a.account_id = b.accountid
+JOIN salesforce.task AS b ON a.account_id = b.accountid
 WHERE createddate BETWEEN add_months(relevant_date, -4) AND relevant_date
 GROUP BY 1,
          2;
@@ -1163,7 +1163,7 @@ SELECT account_id,
                                WHEN lower(subject) like '%xray%' THEN createddate
                            END), relevant_date) AS days_since_xray_task INTO #days_sicne_reply
 FROM #base_accounts AS a
-JOIN salesforce_repo.task AS b ON a.account_id = b.accountid
+JOIN salesforce.task AS b ON a.account_id = b.accountid
 WHERE createddate <= relevant_date
 GROUP BY 1,
          2;
@@ -1390,7 +1390,7 @@ LEFT JOIN #days_from_users AS dfu ON a.account_id = dfu.account_id
 AND a.relevant_date = dfu.relevant_date
 LEFT JOIN #days_from_contact AS dfc ON a.account_id = dfc.account_id
 AND a.relevant_date = dfc.relevant_date
-LEFT JOIN salesforce_repo.account AS sl ON a.account_id = left(sl.accountid_full, LEN (sl.accountid_full) -3)
+LEFT JOIN salesforce.account AS sl ON a.account_id = left(sl.accountid_full, LEN (sl.accountid_full) -3)
 WHERE b1.account_id IS NOT NULL
   AND b2.account_id IS NOT NULL
   AND b3.account_id IS NOT NULL
