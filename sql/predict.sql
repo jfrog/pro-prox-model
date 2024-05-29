@@ -761,7 +761,7 @@ select da.account_id,
            when lower(dozisf__job_title__c) like '%engineer%' then 1
            else 0 end                                                            as is_engineer
 into #zoom_info_raw
-from salesforce_repo.zoominfo__c as zi
+from salesforce_repo.dozisf__zoominfo__c as zi
          join dims.dim_contacts dc on zi.dozisf__contact__c = dc.contact_id
          join dims.dim_accounts da ON da.account_id = dc.account_id
 where dozisf__contact__c <> '';
