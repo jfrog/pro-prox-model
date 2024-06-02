@@ -20,7 +20,7 @@ into #contracts_accounts_tmp
 left join dims.dim_products prev_prd on prev_prd.product_id = ca.product_id
 left join dims.dim_products new_prd on new_prd.product_id = ca.product_renewal_id
 left join dims.dim_accounts da on da.account_id = ca.account_id
-left join salesforce.logo__c as logo on da.logo = logo.name
+left join salesforce_repo.logo__c as logo on da.logo = logo.name
 where isclosed = 'true'
 and (iswon = 'true' or iswon is null)
 and sales_business_unit <> 'Cloud'
@@ -401,7 +401,7 @@ select opp.account_id,
        sum(previous_arr__c) as Related_Contracts_ARR,
        sum(arr__c) as Expected_ARR
 into #arr
-from salesforce.fact_opportunities opp
+from salesforce_repo.fact_opportunities opp
 where opp.contract_expiry_date_with_coterm >= ADD_MONTHS(DATE_TRUNC('month',CURRENT_DATE),-13)
 and  isclosed = 'false'
 group by 1
@@ -416,7 +416,7 @@ select  a.account_id, relevant_month,
         count(distinct case when movement_date between dateadd(month,-3,a.relevant_month) and a.relevant_month then cases.case_id end) as cases_within_3_last_months
 into #support
 from qoc.stg_events_measures as events
-left join salesforce.fact_cases as cases on cases.case_id = events.case_id and events.parameter_id in (10)
+left join salesforce_repo.fact_cases as cases on cases.case_id = events.case_id and events.parameter_id in (10)
 INNER JOIN #account_relevant_date1 a ON cases.account_id = a.account_id
 where DATE_TRUNC('day',movement_date) between ADD_MONTHS(DATE_TRUNC('month',a.relevant_month),-12) and a.relevant_month
 group by 1,2
@@ -460,7 +460,7 @@ drop table if exists #training;
 select account_id, relevant_month, count(distinct(createddate)) as n_training
 into #training
 from
-(select * from salesforce.training__c where recordtypeid='012w0000000R1Yp') as st right join
+(select * from salesforce_repo.training__c where recordtypeid='012w0000000R1Yp') as st right join
 #account_relevant_date1 as ar
 on st.account__c = ar.account_id
 where createddate <= relevant_month
@@ -484,7 +484,7 @@ case  when top_subscription = 'JFrog Enterprise+' then 1
                                               when top_subscription = 'JFrog Pro X' then 3
                                               when top_subscription = 'JFrog Pro' then 4 end as top_sub
 from dims.dim_accounts da
-inner join salesforce.logo__c lo on da.logo = lo.name)
+inner join salesforce_repo.logo__c lo on da.logo = lo.name)
 group by  logo, number_of_accounts;
 
 -------------
@@ -493,7 +493,7 @@ group by  logo, number_of_accounts;
 drop table if exists #contacts;
 select accountid, relevant_month, count(distinct(createddate)) as n_contacts
 into #contacts
-from salesforce.contact as c right join #account_relevant_date1 as ar
+from salesforce_repo.contact as c right join #account_relevant_date1 as ar
 on c.accountid = ar.account_id
 where createddate <= relevant_month
 group by 1,2
@@ -509,7 +509,7 @@ max(case when status = 'Co-termed' and relevant_month >= enddate then 1 else 0 e
 count(distinct(case when contract_value__c in ('JFrog Enterprise','JFrog Enterprise+') then startdate end)) as count_ent,
 count(distinct(case when contract_value__c  = 'JFrog Pro' then startdate end)) as count_pro
 into #contracts
-from salesforce.contract as c right join #account_relevant_date1 as ar
+from salesforce_repo.contract as c right join #account_relevant_date1 as ar
 on c.accountid = ar.account_id
 where relevant_month >= DATE_TRUNC('month', startdate)
 group by 1,2;
@@ -528,7 +528,7 @@ when (status = 'Expired' or status = 'Activated') then coalesce(enddate,current_
 when status = 'Canceled' then coalesce(cancellation_date__c,enddate)
 else coalesce(enddate,current_Date) end as actual_end_date,
 coalesce(no_of_servers__c,num_of_artifactory_servers__c) as servers, coalesce(num_of_artifactory_servers__c,no_of_servers__c) as artifactory_servers
-from salesforce.contract
+from salesforce_repo.contract
 where status in ('Expired','Co-termed', 'Canceled', 'Activated')
 order by license_start_Date, accountid) as ns right join #account_relevant_date1 as ar
 on ns.accountid = ar.account_id
@@ -541,7 +541,7 @@ group by 1,2;
 drop table if exists #opportunities;
 select accountid, relevant_month, count(distinct(createddate)) as n_fail_opp
 into #opportunities
-from (select distinct * from salesforce.opportunity as o
+from (select distinct * from salesforce_repo.opportunity as o
 where iswon = 'false' and lower(name) not like '%cloud%'
 and lower(name) like '%upsell%' and o.type != 'New Business') as op right join #account_relevant_date1 as ar
 on op.accountid = ar.account_id
@@ -554,7 +554,7 @@ group by 1,2;
 drop table if exists #qoe;
 select d.account_id, qoe_score,relevant_month
 into #qoe
-from salesforce.qoe_scores as d right join #account_relevant_date1 as ar
+from salesforce_repo.qoe_scores as d right join #account_relevant_date1 as ar
 on d.account_id = ar.account_id
 where create_date_monthly = relevant_month
 and is_fictive = 0;
@@ -617,7 +617,7 @@ select  da.account_id,
         count(distinct case when cbit__employmentsubrole__c = 'devops_engineer' then cbit__email__c end) as devops_engineers,
         count(distinct case when cbit__employmentsubrole__c like '%engineer%' or cbit__employmenttitle__c  like '%engineer%' then id end) as engineers
 into #cbit
-from salesforce.cbit__clearbit__c a
+from salesforce_repo.cbit__clearbit__c a
 inner join dims.dim_contacts dc on dc.cbit__clearbit__c = a.id
 inner join dims.dim_accounts da on da.account_id = dc.account_id
 group by 1;
