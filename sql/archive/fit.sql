@@ -105,7 +105,7 @@ FROM
 --        max(case when repo.package_type = 'Debian' then avg_repos else 0 end) as Debian,
 --        max(case when repo.package_type = 'Ivy' then avg_repos else 0 end) as Ivy
 FROM #base_accounts AS b
-   LEFT JOIN artifactory.service_trends_repo repo ON repo.account_id = b.account_id
+   LEFT JOIN artifactory.dwh_service_trends_repo repo ON repo.account_id = b.account_id
    WHERE period_range IS NOT NULL
    GROUP BY 1,
             2,
@@ -149,7 +149,7 @@ FROM
           avg(avg_binaries_size) AS binaries_size,
           avg(avg_items_count) AS items_count --
 FROM #base_accounts AS b
-   LEFT JOIN artifactory.service_trends_summary_storage AS a ON a.account_id = b.account_id
+   LEFT JOIN artifactory.dwh_service_trends_summary_storage AS a ON a.account_id = b.account_id
    WHERE period_range IS NOT NULL
    GROUP BY 1,
             2,
@@ -174,7 +174,7 @@ SELECT a.account_id,
       sum(avg_binaries_size) AS binaries_size,
       sum(avg_items_count) AS items_count INTO #storage_over_time
 FROM #base_accounts AS a
-LEFT JOIN artifactory.service_trends_summary_storage AS b ON a.account_id = b.account_id
+LEFT JOIN artifactory.dwh_service_trends_summary_storage AS b ON a.account_id = b.account_id
 WHERE art_create_date <= relevant_date
 GROUP BY 1,
         2,
@@ -369,7 +369,7 @@ FROM
           avg(internal_groups) AS internal_groups,
           avg(number_of_users) AS number_of_users
    FROM #base_accounts AS b
-   LEFT JOIN artifactory.service_trends_security AS u ON u.account_id = b.account_id
+   LEFT JOIN artifactory.dwh_service_trends_security AS u ON u.account_id = b.account_id
    WHERE period_range IS NOT NULL
    GROUP BY 1,
             2,
@@ -392,7 +392,7 @@ SELECT a.account_id,
       sum(internal_groups) AS internal_groups,
       sum(number_of_users) AS number_of_users INTO #users_over_time
 FROM #base_accounts AS a
-LEFT JOIN artifactory.service_trends_security AS b ON a.account_id = b.account_id
+LEFT JOIN artifactory.dwh_service_trends_security AS b ON a.account_id = b.account_id
 WHERE art_create_date <= relevant_date
 GROUP BY 1,
         2,
