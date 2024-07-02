@@ -1,6 +1,7 @@
 - step:
     name: load_data_train
     image: yotamljfrog/proprox:0.1
+    environment: jfrog-aws-c5a-2xlarge
     command:
       - pip install -r requirements.txt
       - python -c 'import prod_valohai; prod_valohai.load_data("fit.sql")'
@@ -8,6 +9,7 @@
 - step:
     name: load_data_test
     image: yotamljfrog/proprox:0.1
+    environment: jfrog-aws-c5a-2xlarge
     command:
       - pip install -r requirements.txt
       - python -c 'import prod_valohai; prod_valohai.load_data("predict.sql")'
@@ -15,6 +17,7 @@
 - step:
     name: process_train
     image: yotamljfrog/proprox:0.1
+    environment: jfrog-aws-c5a-2xlarge
     command:
       - pip install -r requirements.txt
       - python -c 'import prod_valohai; prod_valohai.process_train()'
@@ -25,6 +28,7 @@
 - step:
     name: fit_rf
     image: yotamljfrog/proprox:0.1
+    environment: jfrog-aws-c5a-2xlarge
     command:
       - pip install -r requirements.txt
       - python -c 'import prod_valohai; prod_valohai.fit_evaluate("rf")'
@@ -35,6 +39,7 @@
 - step:
     name: fit_lgb
     image: yotamljfrog/proprox:0.1
+    environment: jfrog-aws-c5a-2xlarge
     command:
       - pip install -r requirements.txt
       - python -c 'import prod_valohai; prod_valohai.fit_evaluate("lgb")'
@@ -45,6 +50,7 @@
 - step:
     name: fit_cbc
     image: yotamljfrog/proprox:0.1
+    environment: jfrog-aws-c5a-2xlarge
     command:
       - pip install -r requirements.txt
       - python -c 'import prod_valohai; prod_valohai.fit_evaluate("cbc")'
@@ -55,6 +61,7 @@
 - step:
     name: fit_hist
     image: yotamljfrog/proprox:0.1
+    environment: jfrog-aws-c5a-2xlarge
     command:
       - pip install -r requirements.txt
       - python -c 'import prod_valohai; prod_valohai.fit_evaluate("hist")'
@@ -65,6 +72,7 @@
 - step:
     name: choose_best_model
     image: yotamljfrog/proprox:0.1
+    environment: jfrog-aws-c5a-2xlarge
     command:
       - pip install -r requirements.txt
       - python -c 'import prod_valohai; prod_valohai.choose_best_model()'
@@ -97,6 +105,7 @@
 - step:
     name: predict_explain
     image: yotamljfrog/proprox:0.1
+    environment: jfrog-aws-c5a-2xlarge
     command:
       - pip install -r requirements.txt
       - python -c 'import prod_valohai; prod_valohai.predict_explain()'
@@ -111,6 +120,7 @@
 - step:
     name: upload_to_s3
     image: yotamljfrog/proprox:0.1
+    environment: jfrog-aws-c5a-2xlarge
     command:
       - pip install -r requirements.txt
       - python -c 'import prod_valohai; prod_valohai.upload_to_s3()'
