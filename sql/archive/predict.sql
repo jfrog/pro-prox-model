@@ -18,7 +18,7 @@ SELECT account_id,
                ELSE 0
            END) AS unresolved_jira_cases INTO #jira_cases
 FROM #base_accounts AS a
-JOIN salesforce_repo.account AS b ON a.account_id = left(b.accountid_full, LEN (b.accountid_full) -3)
+JOIN salesforce_repo.account AS b ON a.account_id = left(b.id, LEN (b.id) -3)
 JOIN salesforce_repo.dim_jira_cases AS c ON b.name = c.jira_case_account_name
 WHERE datediff('month', jira_created_date:: date, relevant_date) <= 12
   AND relevant_date >= jira_created_date:: date
@@ -1342,7 +1342,7 @@ LEFT JOIN #days_from_users AS dfu ON a.account_id = dfu.account_id
 AND a.relevant_date = dfu.relevant_date
 LEFT JOIN #days_from_contact AS dfc ON a.account_id = dfc.account_id
 AND a.relevant_date = dfc.relevant_date
-LEFT JOIN salesforce_repo.account AS sl ON a.account_id = left(sl.accountid_full, LEN (sl.accountid_full) -3)
+LEFT JOIN salesforce_repo.account AS sl ON a.account_id = left(sl.id, LEN (sl.id) -3)
 WHERE b1.account_id IS NOT NULL
   AND b2.account_id IS NOT NULL
   AND b3.account_id IS NOT NULL
