@@ -63,7 +63,7 @@ SELECT account_id,
 INTO #jira_cases
 FROM #base_accounts AS a
          JOIN salesforce_repo.account AS b
-              ON LEFT(a.account_id,15) = LEFT(b.accountid_full, 15)
+              ON LEFT(a.account_id,15) = LEFT(b.id, 15)
          JOIN salesforce_repo.dim_jira_cases AS c ON b.name = c.jira_case_account_name
 WHERE datediff('month', jira_created_date:: date, relevant_date) <= 12
   AND relevant_date >= jira_created_date:: date
@@ -1311,7 +1311,7 @@ FROM #base_accounts AS a
          LEFT JOIN #days_from_contact AS dfc ON LEFT(a.account_id, 15) = LEFT(dfc.account_id, 15)
     AND a.relevant_date = dfc.relevant_date
          LEFT JOIN salesforce_repo.account AS sl
-                   ON LEFT(a.account_id, 15) = LEFT(sl.accountid_full, 15)
+                   ON LEFT(a.account_id, 15) = LEFT(sl.id, 15)
 WHERE b1.account_id IS NOT NULL
   AND b2.account_id IS NOT NULL
   AND b3.account_id IS NOT NULL

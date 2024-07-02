@@ -140,7 +140,7 @@ resp = requests.request(
                 "name": "load_data_train",
                 "type": "execution",
                 "template": {
-                    "environment": "01742a18-07ca-75b6-1a1f-f8cc93b058a0",
+                    "environment": "0188286d-c924-c1c2-c42f-5668553cc8e2",
                     "commit": "prod",
                     "step": "load_data_train",
                     "image": "yotamljfrog/proprox:0.1",
@@ -157,7 +157,7 @@ resp = requests.request(
                 "name": "load_data_test",
                 "type": "execution",
                 "template": {
-                    "environment": "01742a18-07ca-75b6-1a1f-f8cc93b058a0",
+                    "environment": "0188286d-c924-c1c2-c42f-5668553cc8e2",
                     "commit": "prod",
                     "step": "load_data_test",
                     "image": "yotamljfrog/proprox:0.1",
@@ -174,7 +174,7 @@ resp = requests.request(
                 "name": "process_train",
                 "type": "execution",
                 "template": {
-                    "environment": "01742a18-07ca-75b6-1a1f-f8cc93b058a0",
+                    "environment": "0188286d-c924-c1c2-c42f-5668553cc8e2",
                     "commit": "prod",
                     "step": "process_train",
                     "image": "yotamljfrog/proprox:0.1",
@@ -193,7 +193,7 @@ resp = requests.request(
                 "name": "fit_rf",
                 "type": "execution",
                 "template": {
-                    "environment": "01742a18-07ca-75b6-1a1f-f8cc93b058a0",
+                    "environment": "0188286d-c924-c1c2-c42f-5668553cc8e2",
                     "commit": "prod",
                     "step": "fit_rf",
                     "image": "yotamljfrog/proprox:0.1",
@@ -212,7 +212,7 @@ resp = requests.request(
                 "name": "fit_lgb",
                 "type": "execution",
                 "template": {
-                    "environment": "01742a18-07ca-75b6-1a1f-f8cc93b058a0",
+                    "environment": "0188286d-c924-c1c2-c42f-5668553cc8e2",
                     "commit": "prod",
                     "step": "fit_lgb",
                     "image": "yotamljfrog/proprox:0.1",
@@ -231,7 +231,7 @@ resp = requests.request(
                 "name": "fit_cbc",
                 "type": "execution",
                 "template": {
-                    "environment": "01742a18-07ca-75b6-1a1f-f8cc93b058a0",
+                    "environment": "0188286d-c924-c1c2-c42f-5668553cc8e2",
                     "commit": "prod",
                     "step": "fit_cbc",
                     "image": "yotamljfrog/proprox:0.1",
@@ -250,7 +250,7 @@ resp = requests.request(
                 "name": "fit_hist",
                 "type": "execution",
                 "template": {
-                    "environment": "01742a18-07ca-75b6-1a1f-f8cc93b058a0",
+                    "environment": "0188286d-c924-c1c2-c42f-5668553cc8e2",
                     "commit": "prod",
                     "step": "fit_hist",
                     "image": "yotamljfrog/proprox:0.1",
@@ -269,7 +269,7 @@ resp = requests.request(
                 "name": "choose_best_model",
                 "type": "execution",
                 "template": {
-                    "environment": "01742a18-07ca-75b6-1a1f-f8cc93b058a0",
+                    "environment": "0188286d-c924-c1c2-c42f-5668553cc8e2",
                     "commit": "prod",
                     "step": "choose_best_model",
                     "image": "yotamljfrog/proprox:0.1",
@@ -295,7 +295,7 @@ resp = requests.request(
                 "name": "predict_explain",
                 "type": "execution",
                 "template": {
-                    "environment": "01742a18-07ca-75b6-1a1f-f8cc93b058a0",
+                    "environment": "0188286d-c924-c1c2-c42f-5668553cc8e2",
                     "commit": "prod",
                     "step": "predict_explain",
                     "image": "yotamljfrog/proprox:0.1",
@@ -315,7 +315,7 @@ resp = requests.request(
                 "name": "upload_to_s3",
                 "type": "execution",
                 "template": {
-                    "environment": "01742a18-07ca-75b6-1a1f-f8cc93b058a0",
+                    "environment": "0188286d-c924-c1c2-c42f-5668553cc8e2",
                     "commit": "prod",
                     "step": "upload_to_s3",
                     "image": "yotamljfrog/proprox:0.1",
