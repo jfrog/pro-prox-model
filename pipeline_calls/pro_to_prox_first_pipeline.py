@@ -3,7 +3,7 @@ import requests
 resp = requests.request(
     url="https://valohai-prod-is.jfrog.org/api/v0/pipelines/",
     method="POST",
-    headers={"Authorization": "Token TOKEN"},
+    headers={"Authorization": "Token YOUR_TOKEN_HERE"},
     json={
         "edges": [
             {
