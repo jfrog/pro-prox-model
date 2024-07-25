@@ -3,7 +3,7 @@ import requests
 resp = requests.request(
     url="https://valohai-prod-is.jfrog.org/api/v0/pipelines/",
     method="POST",
-    headers={"Authorization": "Token YOUR_TOKEN_HERE"},
+    headers={"Authorization": "Token iGT8LH8ODBFL090a9pAYZUiNkOl0kCSTaWZxerN6"},
     json={
         "edges": [
             {
@@ -48,7 +48,7 @@ resp = requests.request(
             },
             {
                 "source_node": "fit_rf",
-                "source_key": "*.sav",
+                "source_key": "rf.sav",
                 "source_type": "output",
                 "target_node": "choose_best_model",
                 "target_type": "input",
@@ -56,7 +56,7 @@ resp = requests.request(
             },
             {
                 "source_node": "fit_lgb",
-                "source_key": "*.sav",
+                "source_key": "lgb.sav",
                 "source_type": "output",
                 "target_node": "choose_best_model",
                 "target_type": "input",
@@ -64,7 +64,7 @@ resp = requests.request(
             },
             {
                 "source_node": "fit_cbc",
-                "source_key": "*.sav",
+                "source_key": "cbc.sav",
                 "source_type": "output",
                 "target_node": "choose_best_model",
                 "target_type": "input",
@@ -72,7 +72,7 @@ resp = requests.request(
             },
             {
                 "source_node": "fit_hist",
-                "source_key": "*.sav",
+                "source_key": "hist.sav",
                 "source_type": "output",
                 "target_node": "choose_best_model",
                 "target_type": "input",
@@ -111,12 +111,52 @@ resp = requests.request(
                 "target_key": "hist_pr_auc"
             },
             {
+                "source_node": "fit_rf",
+                "source_key": "rf_columns.sav",
+                "source_type": "output",
+                "target_node": "choose_best_model",
+                "target_type": "input",
+                "target_key": "rf_columns"
+            },
+            {
+                "source_node": "fit_lgb",
+                "source_key": "lgb_columns.sav",
+                "source_type": "output",
+                "target_node": "choose_best_model",
+                "target_type": "input",
+                "target_key": "lgb_columns"
+            },
+            {
+                "source_node": "fit_cbc",
+                "source_key": "cbc_columns.sav",
+                "source_type": "output",
+                "target_node": "choose_best_model",
+                "target_type": "input",
+                "target_key": "cbc_columns"
+            },
+            {
+                "source_node": "fit_hist",
+                "source_key": "hist_columns.sav",
+                "source_type": "output",
+                "target_node": "choose_best_model",
+                "target_type": "input",
+                "target_key": "hist_columns"
+            },
+            {
                 "source_node": "choose_best_model",
-                "source_key": "*.sav",
+                "source_key": "top_model.sav",
                 "source_type": "output",
                 "target_node": "predict_explain",
                 "target_type": "input",
                 "target_key": "top_model"
+            },
+            {
+                "source_node": "choose_best_model",
+                "source_key": "top_model_cols.sav",
+                "source_type": "output",
+                "target_node": "predict_explain",
+                "target_type": "input",
+                "target_key": "top_model_cols"
             },
             {
                 "source_node": "load_data_test",
@@ -149,9 +189,12 @@ resp = requests.request(
                     "parameters": {},
                     "runtime_config": {},
                     "inherit_environment_variables": True,
+                    "environment_variable_groups": [],
+                    "tags": ["prod"],
                     "time_limit": 0,
                     "environment_variables": {}
-                }
+                },
+                "on_error": "stop-all"
             },
             {
                 "name": "load_data_test",
@@ -166,9 +209,12 @@ resp = requests.request(
                     "parameters": {},
                     "runtime_config": {},
                     "inherit_environment_variables": True,
+                    "environment_variable_groups": [],
+                    "tags": ["prod"],
                     "time_limit": 0,
                     "environment_variables": {}
-                }
+                },
+                "on_error": "stop-all"
             },
             {
                 "name": "process_train",
@@ -185,9 +231,12 @@ resp = requests.request(
                     "parameters": {},
                     "runtime_config": {},
                     "inherit_environment_variables": True,
+                    "environment_variable_groups": [],
+                    "tags": ["prod"],
                     "time_limit": 0,
                     "environment_variables": {}
-                }
+                },
+                "on_error": "stop-all"
             },
             {
                 "name": "fit_rf",
@@ -204,9 +253,12 @@ resp = requests.request(
                     "parameters": {},
                     "runtime_config": {},
                     "inherit_environment_variables": True,
+                    "environment_variable_groups": [],
+                    "tags": ["prod"],
                     "time_limit": 0,
                     "environment_variables": {}
-                }
+                },
+                "on_error": "stop-all"
             },
             {
                 "name": "fit_lgb",
@@ -223,9 +275,12 @@ resp = requests.request(
                     "parameters": {},
                     "runtime_config": {},
                     "inherit_environment_variables": True,
+                    "environment_variable_groups": [],
+                    "tags": ["prod"],
                     "time_limit": 0,
                     "environment_variables": {}
-                }
+                },
+                "on_error": "stop-all"
             },
             {
                 "name": "fit_cbc",
@@ -242,9 +297,12 @@ resp = requests.request(
                     "parameters": {},
                     "runtime_config": {},
                     "inherit_environment_variables": True,
+                    "environment_variable_groups": [],
+                    "tags": ["prod"],
                     "time_limit": 0,
                     "environment_variables": {}
-                }
+                },
+                "on_error": "stop-all"
             },
             {
                 "name": "fit_hist",
@@ -261,9 +319,12 @@ resp = requests.request(
                     "parameters": {},
                     "runtime_config": {},
                     "inherit_environment_variables": True,
+                    "environment_variable_groups": [],
+                    "tags": ["prod"],
                     "time_limit": 0,
                     "environment_variables": {}
-                }
+                },
+                "on_error": "stop-all"
             },
             {
                 "name": "choose_best_model",
@@ -276,20 +337,27 @@ resp = requests.request(
                     "command": "pip install -r requirements.txt\npython -c 'import prod_valohai; prod_valohai.choose_best_model()'",
                     "inputs": {
                         "rf": [],
-                        "rf_pr_auc": [],
                         "lgb": [],
-                        "lgb_pr_auc": [],
                         "cbc": [],
-                        "cbc_pr_auc": [],
                         "hist": [],
-                        "hist_pr_auc": []
+                        "rf_pr_auc": [],
+                        "lgb_pr_auc": [],
+                        "cbc_pr_auc": [],
+                        "hist_pr_auc": [],
+                        "rf_columns": [],
+                        "lgb_columns": [],
+                        "cbc_columns": [],
+                        "hist_columns": []
                     },
                     "parameters": {},
                     "runtime_config": {},
                     "inherit_environment_variables": True,
+                    "environment_variable_groups": [],
+                    "tags": ["prod"],
                     "time_limit": 0,
                     "environment_variables": {}
-                }
+                },
+                "on_error": "stop-all"
             },
             {
                 "name": "predict_explain",
@@ -302,14 +370,18 @@ resp = requests.request(
                     "command": "pip install -r requirements.txt\npython -c 'import prod_valohai; prod_valohai.predict_explain()'",
                     "inputs": {
                         "loaded_data": [],
-                        "top_model": []
+                        "top_model": [],
+                        "top_model_cols": []
                     },
                     "parameters": {},
                     "runtime_config": {},
                     "inherit_environment_variables": True,
+                    "environment_variable_groups": [],
+                    "tags": ["prod"],
                     "time_limit": 0,
                     "environment_variables": {}
-                }
+                },
+                "on_error": "stop-all"
             },
             {
                 "name": "upload_to_s3",
@@ -326,12 +398,19 @@ resp = requests.request(
                     "parameters": {},
                     "runtime_config": {},
                     "inherit_environment_variables": True,
+                    "environment_variable_groups": [],
+                    "tags": ["prod"],
                     "time_limit": 0,
                     "environment_variables": {}
-                }
+                },
+                "on_error": "stop-all"
             }
         ],
         "project": "017b6d58-8fed-49a2-a934-58fdc93f1edd",
+        "tags": [
+            "prod"
+        ],
+        "parameters": {},
         "title": "pro_to_prox_first_pipeline"
     },
 )
