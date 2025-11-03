@@ -180,7 +180,7 @@ group by 1,2;
 drop table if exists #derby;
 select ar.account_id, relevant_month, max(case when db_type = 'derby' then 1 else 0 end) as is_derby
 into #derby
-from artifactory.dwh_service_trends_summary_storage as s
+from artifactory.service_trends_summary_storage as s
 left join #account_relevant_date1 as ar
 on s.account_id = ar.account_id
 where art_create_date between ADD_MONTHS(DATE_TRUNC('day', ar.relevant_month),-1) and DATE_TRUNC('day', ar.relevant_month)
@@ -265,7 +265,7 @@ select  environment_service_id,
         max(case when repo.package_type = 'P2' then avg_repos else 0 end) as P2,
         max(case when repo.package_type = 'VCS' then avg_repos else 0 end) as VCS,
         max(case when repo.package_type = 'Alpine' then avg_repos else 0 end) as Alpine
-from artifactory.dwh_service_trends_repo repo
+from artifactory.service_trends_repo repo
 left join #account_relevant_date1 b ON repo.account_id = b.account_id
 where period_range is not null --- and repo_type = 'Local Repositories'
 group by 1,2,3,4)
@@ -305,7 +305,7 @@ select a.account_id,
        avg(avg_binaries_size) as binaries_size,
        avg(avg_items_count) as items_count
 --
-from artifactory.dwh_service_trends_summary_storage a
+from artifactory.service_trends_summary_storage a
 INNER JOIN #account_relevant_date1 b ON a.account_id = b.account_id
 where period_range is not null
 group by 1,2,3,4
@@ -336,7 +336,7 @@ select u.account_id,
        avg(internal_groups) as internal_groups,
        avg(number_of_users) as number_of_users
 --
-from artifactory.dwh_service_trends_security as u
+from artifactory.service_trends_security as u
 INNER JOIN #account_relevant_date1 b ON u.account_id = b.account_id
 where period_range is not null
 group by 1,2,3,4
@@ -367,7 +367,7 @@ select r.account_id,
        avg(case when push_replication = 'true' then avg_repos else 0 end) as push_replications,
        avg(case when event_replication = 't' then avg_repos else 0 end) as event_replications
 --
-from artifactory.dwh_service_trends_repo_include_replication as r
+from artifactory.service_trends_repo_include_replication as r
 INNER JOIN #account_relevant_date1 b ON r.account_id = b.account_id
 where period_range is not null
 group by 1,2,3,4

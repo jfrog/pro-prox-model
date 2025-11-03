@@ -106,7 +106,7 @@ FROM (SELECT environment_service_id,
 --        max(case when repo.package_type = 'Debian' then avg_repos else 0 end) as Debian,
 --        max(case when repo.package_type = 'Ivy' then avg_repos else 0 end) as Ivy
       FROM #base_accounts AS b
-               LEFT JOIN artifactory.dwh_service_trends_repo repo
+               LEFT JOIN artifactory.service_trends_repo repo
                          ON LEFT(repo.account_id, 15) = LEFT(b.account_id, 15)
       WHERE period_range IS NOT NULL
       GROUP BY 1,
@@ -161,7 +161,7 @@ FROM (SELECT a.account_id,
              avg(avg_binaries_size)   AS binaries_size,
              avg(avg_items_count)     AS items_count --
       FROM #base_accounts AS b
-               LEFT JOIN artifactory.dwh_service_trends_summary_storage AS a
+               LEFT JOIN artifactory.service_trends_summary_storage AS a
                          ON LEFT(a.account_id, 15) = LEFT(b.account_id, 15)
       WHERE period_range IS NOT NULL
       GROUP BY 1,
@@ -188,7 +188,7 @@ SELECT a.account_id,
        sum(avg_items_count)     AS items_count
 INTO #storage_over_time
 FROM #base_accounts AS a
-         LEFT JOIN artifactory.dwh_service_trends_summary_storage AS b
+         LEFT JOIN artifactory.service_trends_summary_storage AS b
                    ON LEFT(a.account_id, 15) = LEFT(b.account_id, 15)
 WHERE art_create_date <= relevant_date
 GROUP BY 1,
@@ -399,7 +399,7 @@ FROM (SELECT u.account_id,
              avg(internal_groups)              AS internal_groups,
              avg(number_of_users)              AS number_of_users
       FROM #base_accounts AS b
-               LEFT JOIN artifactory.dwh_service_trends_security AS u
+               LEFT JOIN artifactory.service_trends_security AS u
                          ON LEFT(u.account_id, 15) = LEFT(b.account_id, 15)
       WHERE period_range IS NOT NULL
       GROUP BY 1,
@@ -424,7 +424,7 @@ SELECT a.account_id,
        sum(number_of_users)              AS number_of_users
 INTO #users_over_time
 FROM #base_accounts AS a
-         LEFT JOIN artifactory.dwh_service_trends_security AS b
+         LEFT JOIN artifactory.service_trends_security AS b
                    ON LEFT(a.account_id, 15) = LEFT(b.account_id, 15)
 WHERE art_create_date <= relevant_date
 GROUP BY 1,
